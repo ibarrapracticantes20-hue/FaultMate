@@ -9,7 +9,9 @@ from google import genai
 # Carga las variables del archivo .env (por ejemplo GEMINI_API_KEY).
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# Proyecto escolar: clave hardcodeada de forma directa.
+# Reemplaza el valor por tu clave real de Gemini.
+GEMINI_API_KEY = "PEGA_AQUI_TU_API_KEY"
 
 # Si no hay clave configurada, "cliente" queda en None y avisamos con un
 # mensaje claro en vez de que el programa se caiga con un error raro.
