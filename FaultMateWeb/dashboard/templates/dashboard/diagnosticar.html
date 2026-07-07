@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>FaultMate Diagnóstico</title>
+</head>
+
+<body>
+
+<h1>FaultMate Diagnóstico Inteligente</h1>
+
+<form method="POST">
+
+    {% csrf_token %}
+    
+    <input
+       type="text"
+       name="falla"
+       placeholder="Escribe la falla">
+
+    <button type="submit">
+        Diagnosticar
+    </button>
+
+</form>
+
+<hr>
+
+{% if resultado %}
+
+<h2>Resultado</h2>
+
+<p><b>Falla:</b> {{ resultado.falla }}</p>
+<p><b>Diagnóstico:</b> {{ resultado.diagnostico }}</p>
+<p><b>Agente:</b> {{ resultado.agente }}</p>
+<p><b>Tiempo:</b> {{ resultado.tiempo_diagnostico }} min</p>
+
+{% elif respuest_gemini %}
+
+<h2>Diagnóstico IA</h2>
+
+<pre>
+{{ respuest_gemini }}
+</pre>
+
+{% elif buscado %}
+
+<p>No se encontró un diagnóstico para esa falla</p>
+
+{% endif %}
+
+{% if respuesta_gemini %}
+
+<h2>Respuesta de Gemini</h2>
+
+<pre>
+{{ respuesta_gemini }}
+</pre>
+
+{% endif %}
+
+</body>
+</html>

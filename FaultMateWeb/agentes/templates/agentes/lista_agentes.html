@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head> 
+<title>Agente IA - FaultMate</title>
+
+<style>
+
+body{
+    font-family:Arial;
+    background:#f4f6f9;
+    margin:0;
+}
+
+.header{
+    background:#003366;
+    color:white;
+    padding:20px;
+}
+
+.container{
+    padding:20px;
+}
+
+.btn{
+    background:#1d7eae;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:5px;
+    text-decoration:none;
+}
+
+table{
+    width:100%;
+    background:white;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+th{
+    background:#003366;
+    color:white;
+    padding:12px;
+}
+
+td{
+    padding:12px;
+    border:1px solid #ddd;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1 style="color:red;">{{ mensaje_prueba }}</h1>
+
+<div class="header">
+    <h1>Módulo Agentes IA</h1>
+</div>
+
+<div class="container">
+
+<a href="#" class="btn">
++ Nuevo Agente
+</a>
+
+<table>
+
+<tr>
+    <th>ID</th>
+    <th>Nombre</th>
+    <th>Descripción</th>
+    <th>Acciones</th>
+</tr>
+
+{% for agente in agentes %}
+
+<tr>
+
+<td>{{ agente.id }}</td>
+
+<td>{{ agente.nombre}}</td>
+
+<td>{{ agente.descripcion }}</td>
+
+<td>
+
+<a href="#" class="btn">
+Editar
+</a>
+
+<a href="#" class="btn">
+Eliminar
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+</body>
+</html>

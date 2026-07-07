@@ -1,0 +1,212 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>{% block title %}FaultMate{% endblock %}</title>
+
+<style> 
+
+:root{
+
+--primary:#1d7eae;
+--secondary-blue:#0032a0;
+--light-blue:#98dae9;
+--accent:#ff661b;
+--dark:#231f20;
+--gray:#bdc6c3;
+--white:#ffffff;
+--background:#f4f6f9;
+
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Segoe UI',sans-serif;
+background:var(--background);
+display:flex;
+}
+
+.sidebar{
+width:260px;
+height:100vh;
+background:var(--dark);
+color:white;
+position:fixed;
+padding:25px;
+}
+
+.logo{
+text-align:center;
+margin-bottom:30px;
+}
+
+.logo img{
+max-width:160px;
+}
+
+.sidebar a{
+display:block;
+padding:14px;
+margin-bottom:8px;
+text-decoration:none;
+color:white;
+border-radius:10px;
+transition:.3s;
+}
+
+.sidebar a:hover{
+background:var(--primary);
+}
+
+.main{
+margin-left:260px;
+width:100%;
+padding:25px;
+}
+
+.header{
+background:white;
+padding:20px;
+border-radius:15px;
+box-shadow:0 5px 15px rgba(0,0,0,.08);
+margin-bottom:25px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.header h1{
+color:var(--dark);
+font-size:30px;
+}
+
+.header p{
+color:#6b7280;
+margin-top:5px;
+}
+
+.content{
+width:100%;
+}
+
+.btn{
+background:var(--primary);
+color:white;
+padding:10px 15px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+text-decoration:none;
+display:inline-block;
+}
+
+.btn-edit{
+background:var(--secondary-blue);
+}
+
+.btn-delete{
+background:var(--accent);
+}
+
+.card{
+background:white;
+padding:25px;
+border-radius:15px;
+box-shadow:0 5px 15px rgba(0,0,0,.08);
+border-top:5px solid var(--primary);
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+border-radius:15px;
+overflow:hidden;
+box-shadow:0 5px 15px rgba(0,0,0,.08);
+}
+
+th{
+background:var(--primary);
+color:white;
+padding:14px;
+}
+
+td{
+padding:14px;
+border-bottom:1px solid #e5e7eb;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<div class="logo">
+
+<img src="{% static 'img/logo.png' %}" alt="FaultMate">
+
+</div>
+
+<a href="/">Inicio</a>
+
+<a href="/dashboard/">Dashboard</a>
+
+<a href="/diagnosticar/">Diagnosticar</a>
+
+<a href="/agentes/">Agentes IA</a>
+
+<a href="/usuarios/">Usuarios</a>
+
+<a href="/reportes/">Reportes</a>
+
+<a href="/logout/">Cerrar sesión</a>
+
+</div>
+
+<div class="main">
+
+<div class="header">
+
+<div>
+
+<h1>{% block titulo %}{% endblock %}</h1>
+
+<p>{% block descripcion %}{% endblock %}</p>
+
+</div>
+
+<div>
+
+Administrador
+
+</div>
+
+</div>
+
+<div class="content">
+
+{% block content %}
+{% endblock %}
+
+</div>
+
+</div>
+
+</body>
+
+</html>

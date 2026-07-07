@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Usuarios - FaultMate</title>
+
+<style>
+
+body{
+    font-family:Arial;
+    background: #f4f6f9;
+    margin:0;
+    display:flex
+}
+
+.header{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    margin:20px;
+    box-shadow:0 5px 15px rgb(0,0,0,.08);
+}
+
+.container{
+    padding:20px;
+}
+
+.btn{
+    background:#1d7eae;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.btn-editar{
+    background:#22c55e;
+}
+
+.btn-eliminar{
+    background:#ef4444;
+}
+
+.btn:hover{
+    background:#0055aa;
+}
+
+.sidebar{
+    width:250px;
+    height:100vh;
+    background:linear-gradient(180deg,#0f172a,#1e293b);
+    color:white;
+    padding:25px;
+    position:fixed;
+}
+
+.sidebar h2{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.sidebar a{
+    display:block;
+    color:white;
+    text-decoration:none;
+    padding:12px;
+    margin-bottom:10px;
+    border-radius:10px;
+}
+
+.sidebar a:hover{
+    background:#334155;
+}
+
+.main{
+    margin-left:280px;
+    width:100%;
+}
+
+table{
+    width:100%;
+    background:white;
+    border-collapse:collapse;
+    margin-top:20px;
+    box-shadow:0px 0px 10px lightgray;
+}
+
+th{
+    background:#0ea5e9;
+    color:white;
+    padding:12px;
+}
+
+td{
+    padding:12px;
+    border:1px solid #ddd;
+}
+
+.acciones button{
+    margin-right:5px
+}
+
+.volver{
+    margin-top:20px;
+    display:inline-block;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<div class="sidebar">
+
+<h2>🤖 FaultMate IA</h2>
+
+<a href="/">🏠 Inicio</a>
+
+<a href="/dashboard/">📊 Dashboard</a>
+
+<a href="/diagnosticar/">🔎 Diagnosticar</a>
+
+<a href="/agentes/">🤖 Agentes IA</a>
+
+<a href="/usuarios/">👥 Usuarios</a>
+
+</div>
+
+<div class="main">
+
+   <h1>👥 Gestión de Usuarios</h1>
+<p>
+Administración de usuarios y perfiles del sistema FaultMate.
+</p>
+</div>
+
+<div class="container">
+
+<a href="#" class="btn">
++ Nuevo Usuario
+</a>
+
+<table>
+
+<tr>
+    <th>ID</th>
+    <th>Nombre</th>
+    <th>Rol</th>
+    <th>Acciones</th>
+</tr>
+
+{% for usuario in usuarios %}
+
+<tr>
+
+<td>
+{{ usuario.id }}
+</td>
+
+<td>
+{{ usuario.nombre }}
+</td>
+
+<td>
+{{ usuario.rol }}
+</td>
+
+<td>
+
+<button class="btn btn-editar">
+Editar
+</button>
+
+<button class="btn btn-eliminar">
+Eliminar
+</button>
+
+</td>
+
+</tr>
+
+
+{% endfor %}
+
+<tr>
+    <td>2</td>
+    <td>Técnico Mantenimiento</td>
+    <td>Técnico</td>
+    <td class="acciones">
+        <button class="btn btn-editar">
+            Editar
+        </button>
+        <button class="btn btn-eliminar">
+            Eliminar
+        </button>
+    </td>
+</tr>
+</table>
+
+<br>
+
+</div>
+</div>
+
+</body>
+</html>

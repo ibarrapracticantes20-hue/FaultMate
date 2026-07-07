@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editar Agente</title>
+</head>
+<body>
+
+<h1>Editar Agente</h1>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <label>Nombre</label>
+
+    <input
+       type="text"
+       name="nombre"
+       value="{{ agente.nombre }}">
+
+    <br><br>
+
+    <label>descripcion</label><br>
+    <textarea
+        name="descripcion">{{ agente.descripcion }}</textarea>
+
+    <br><br>
+
+    <button type="submit">
+        Guardar
+    </button>
+
+</form>
+
+<br>
+
+<a href="/agentes/">
+Volver
+</a>
+
+</body>
+</html>

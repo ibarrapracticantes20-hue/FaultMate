@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "faultmate",
+			"path": "."
+		},
+		{
+			"name": "dashboard",
+			"path": "../dashboard"
+		},
+		{
+			"name": "templates",
+			"path": "../../FaultMate/templates"
+		}
+	],
+	"settings": {}
+}

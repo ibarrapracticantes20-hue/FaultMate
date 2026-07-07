@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <tittle>Nuevo Agente</tittle>
+</head>
+<body>
+
+<h1>Crear Nuevo Agente IA</h1>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <label>Nombre</label>
+     <br>
+
+     <input
+        type="text"
+        name="nombre"
+        required>
+
+    <br><br>
+
+    <label>descripción</label>
+    <br>
+
+    <textarea
+        name="descripcion"
+        rows="5"
+        cols="40"
+        required></textarea>
+
+     <br><br>
+
+<button type="submit">
+         Guardar Agente
+</button>
+
+</form>
+
+<br>
+
+<a href="/agentes/">
+Volver
+</a>

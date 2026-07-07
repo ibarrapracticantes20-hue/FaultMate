@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Agentes IA - FaultMate</title>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    display:flex;
+}
+
+.header{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    margin:20px;
+    box-shadow:0 5px 15px rgb(0,0,0,.08)
+}
+
+.container{
+    padding:20px;
+}
+
+.cards{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.card{
+    background:white;
+    width:300px;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0px 5px 15px rgb(0,0,0,.08);
+    border-top:5px solid #0ea5e9;
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px)
+}
+
+.btn{
+    background:#1d7eae;
+    color:white;
+    border:none;
+    outline:none;
+    padding:10px 15px;
+    border-radius:5px;
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-block;
+    margin-right:8px;
+}
+
+.btn-editar{
+    background:#22c55e;
+}
+
+.btn-eliminar{
+    background:#ef4444;
+}
+
+.sidebar{
+    width:250px;
+    height:100vh;
+    background:linear-gradient(180deg,#0f172a,#1e293b);
+    color:white;
+    padding:25px;
+    position:fixed;
+}
+
+.sidebar h2{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.sidebar a{
+    display:block;
+    color:white;
+    text-decoration:none;
+    padding:12px;
+    margin-bottom:10px;
+    border-radius:10px;
+}
+
+.sidebar a:hover{
+    background:#334155;
+}
+
+.main{
+    margin-left:280px;
+    width:100%;
+}
+
+.header h1{
+    color:#0f172a;
+    margin-bottom:8px;
+}
+
+.header p{
+    color:#64748b;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2> FaultMate IA</h2>
+
+<a href="/">🏠 Inicio</a>
+
+<a href="/dashboard/">📊 Dashboard</a>
+
+<a href="/diagnosticar/">🔎 Diagnosticar</a>
+
+<a href="/agentes/">🤖 Agentes IA</a>
+
+<a href="/usuarios/">👥 Usuarios</a>
+
+</div>
+
+<div class="main">
+
+<div class="header">
+    <h1> Agentes Inteligentes FaultMate</h1>
+<p>
+Administración de agentes especializados para diagnóstico industrial.
+</p>
+
+</div>
+
+<div class="container">
+
+<a href="/agentes/nuevo/" class="btn">
++ Nuevo Agente
+</a>
+
+
+<br><br>
+
+<div class="cards">
+
+{% for agente in agentes %}
+
+<div class="card">
+    <div style="font-size:35px;margin-bottom:10px;">
+    </div>
+
+<h3>
+ {{ agente.nombre }}
+</h3>
+
+<p>{{ agente.descripcion }}</p>
+<hr>
+
+<p style="color:#64748b;font-size:14px;">
+Especialista en diagnóstico industrial
+</p>
+
+<a href="/agentes/editar/{{ agente.id }}/" class="btn btn-editar">
+        Editar
+</a>
+
+<a href="/agentes/eliminar/{{ agente.id }}/" class="btn btn-eliminar">
+Eliminar
+</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+<br>
+
+</div>
+
+</div>
+
+</body>
+</html>
