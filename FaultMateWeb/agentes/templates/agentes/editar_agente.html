@@ -1,42 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Editar Agente</title>
-</head>
-<body>
+{% extends "dashboard/base.html" %}
 
-<h1>Editar Agente</h1>
+{% block title %}Editar agente - FaultMate{% endblock %}
 
-<form method="POST">
+{% block titulo %}Editar agente IA{% endblock %}
+{% block descripcion %}Actualiza los datos de "{{ agente.nombre }}"{% endblock %}
 
-    {% csrf_token %}
+{% block content %}
 
-    <label>Nombre</label>
+<div class="card">
 
-    <input
-       type="text"
-       name="nombre"
-       value="{{ agente.nombre }}">
+    <form method="POST" class="formulario">
 
-    <br><br>
+        {% csrf_token %}
 
-    <label>descripcion</label><br>
-    <textarea
-        name="descripcion">{{ agente.descripcion }}</textarea>
+        <label>Nombre</label>
+        <input type="text" name="nombre" value="{{ agente.nombre }}" required>
 
-    <br><br>
+        <label>Descripcion</label>
+        <textarea name="descripcion" rows="5" required>{{ agente.descripcion }}</textarea>
 
-    <button type="submit">
-        Guardar
-    </button>
+        <button type="submit" class="btn">Guardar cambios</button>
 
-</form>
+    </form>
+
+</div>
 
 <br>
 
-<a href="/agentes/">
-Volver
-</a>
+<a href="{% url 'lista_agentes' %}">&larr; Volver a la lista de agentes</a>
 
-</body>
-</html>
+{% endblock %}

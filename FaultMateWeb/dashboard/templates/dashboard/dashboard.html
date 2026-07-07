@@ -1,412 +1,59 @@
-<!DOCTYPE html>
-<html>
-<head>
+{% extends "dashboard/base.html" %}
 
-<title>Dashboard FaultMate</title>
+{% block title %}Dashboard - FaultMate{% endblock %}
 
+{% block titulo %}Dashboard FaultMate{% endblock %}
+{% block descripcion %}Plataforma inteligente para diagnostico de fallas industriales{% endblock %}
 
-<link rel="stylesheet"
-href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% block content %}
 
-<style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-    font-family:Arial, sans-serif;
-    background:#f4f6f9;
-    display:flex;
-}
-
-
-.sidebar{
-    width:250px;
-    height:100vh;
-    background:linear-gradient(180deg,#0f172a,#1e293b);
-    color:white;
-    padding:25px;
-    position:fixed;
-    left:0;
-    top:0;
-}
-
-
-.sidebar h2{
-    margin-bottom:30px;
-    text-align:center;
-}
-
-.sidebar a{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    color:white;
-    text-decoration:none;
-    padding:14px;
-    margin-bottom:10px;
-    border-radius:10px;
-    transition:.3s;
-}
-
-.sidebar a:hover{
-    background:#1e293b;
-}
-
-.main{
-    margin-left:290px;
-    width:100%;
-    padding:35px;
-}
-
-.header{
-    background:white;
-    padding:20px;
-    border-radius:12px;
-    margin-bottom:25px;
-    box-shadow:0px 0px 10px rgba(0,0,0,0.1);
-}
-
-.header h1{
-    font-size:34px;
-    color:#0f172a;
-}
-
-.header p{ 
-    color:#64748b;
-    margin-top:8px;
-}
-
-.cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-}
-
-.card{
-    background:white;
-    padding:25px;
-    border-radius:15px;
-    box-shadow:0 5px 15px rgba(0,0,0,.08);
-    transition:.3s;
-    border-top:5px solid #0ea5e9;
-}
-
-.card:hover{
-    transform:translateY(-5px);
-}
-
-.card h2{
-    font-size:42px;
-    color:#0ea5e9;
-}
-
-.card p{
-    color:#64748b;
-    font-weight:bold;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    background:white;
-    border-radius:15px;
-    overflow:hidden;
-    box-shadow:0 5px 15px rgba(0,0,0,.08);
-}
-
-th{
-    background:#0ea5e9;
-    color:white;
-    padding:15px;
-    text-align:left;
-}
-
-td{
-    padding:14px;
-    border-bottom:1px solid #e2e8f0;
-    max-width:300px;
-    word-wrap:break-word;
-}
-
-tr:hover{
-    background:#f8fafc;
-}
-
-.icono{
-    font-size:35px;
-    color:#0ea5e9;
-    margin-bottom:10px;
-}
-
-.topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-@media(max-width:900px){
-
-.cards{
-    grid-template-columns:1fr;
-}
-
-.sidebar{
-    width:100%;
-    height:auto;
-    position:relative;
-}
-
-.main{
-    margin-left:0;
-}
-
-}
-
-.card:nth-child(1){
-border-top:5px solid #ef4444;
-}
-
-.card:nth-child(2){
-border-top:5px solid #22c55e;
-}
-
-.card:nth-child(3){
-border-top:5px solid #f59e0b;
-}
-
-.card:nth-child(4){
-border-top:5px solid #3b82f6;
-}
-
-</style>
-
-</head>
-
-<body>
-
-
-<div class="sidebar">
-
-    <h2>
-FaultMate IA
-</h2>
-
-<p style="text-align:center;color:#94a3b8;">
-Diagnóstico Industrial
-</p>
-
-<hr style="margin:20px 0;border:none;height:1px;background:#334155;">
-
-
-<a href="/">
-<i class="bi bi-house-door"></i>
-Inicio
-</a>
-
-<a href="{% url 'dashboard' %}">
-<i class="bi bi-speedometer2"></i>
-Dashboard
-</a>
-
-<a href="/diagnosticar/">
-<i class="bi bi-search"></i>
-Diagnosticar
-</a>
-
-<a href="/agentes/">
-<i class="bi bi-cpu"></i>
-Agentes IA
-</a>
-
-<a href="/usuarios/">
-<i class="bi bi-people-fill"></i>
-Usuarios
-</a>
-
-</div>
-
-<div class="main">
-
-
-    <div class="header">
-
-         <div class="topbar">
-
-             <div>
-                 <h1>Dashboard FaultMate</h1>
-                 <p>
-                     Plataforma Inteligente para Diagnóstico de Fallas Industriales
-                 </p>
-             </div>
-
-             <div style="text-align:right;">
-                <strong>Administrador</strong>
-                <br>
-                <small>03 julio 2026</small>
-             </div>
-         </div>
-    </div>
-
-    <div class="cards">
-
-        <div class="card">
-            
-            <div class="icono">
-                <i class="bi bi-tools"></i>
-            </div>
-        <h2>20</h2>
-        <p>Fallas Registradas</p>
-</div>
-
+<!--
+    Esta pagina antes tenia numeros "inventados" (por ejemplo "20 fallas
+    registradas" escrito a mano) que no coincidian con los datos reales
+    de la base de datos. Ahora solo mostramos numeros reales, calculados
+    en dashboard/views.py con Diagnostico.objects.count() y
+    Agentes.objects.count().
+-->
+<div class="cards">
 
     <div class="card">
-        <div class="icono">
-            <i class="bi bi-robot"></i>
-        </div>
+        <div class="icono"><i class="bi bi-clipboard-data"></i></div>
+        <h2>{{ total_diagnosticos }}</h2>
+        <p>Diagnosticos realizados</p>
+    </div>
+
+    <div class="card">
+        <div class="icono"><i class="bi bi-robot"></i></div>
         <h2>{{ total_agentes }}</h2>
         <p>Agentes IA</p>
-
-</div>
-
-
-    <div class="card">
-        <div class="icono">
-            <i class="bi bi-person-badge"></i>
-        </div>
-        <h2>1</h2>
-        <p>Administrador</p>
-    
     </div>
 
-
-    <div class="card">
-        <div class="icono">
-            <i class="bi bi-clipboard-data"></i>
-        </div>
-        <h2>{{ total_diagnosticos }}</h2>
-        <p>Diagnósticos</p>
-    </div>
-
-    </div>
-    
-    <div style="
-    background:white;
-    padding:20px;
-    border-radius:15px;
-    margin-top:20px;
-    margin-bottom:20px;
-    box-shadow:0 5px 15px rgb(0,0,0,.08);
-    ">
-
-    <h3>Resumen General</h3>
-    <br>
-    
-    <p>
-        FaultMate cuenta actualmente con 20 fallas registradas,
-        agentes de diagnóstico configurados y almacenamiento
-        de diagnósticos en base de datos local.
-    </p>
-    <br>
-    
-    <p>
-        El sistema combina árboles de decisión y asistencia mediante IA
-        para apoyar el diagnóstico de maquinaria industrial.
-    </p>
 </div>
 
-<hr>
-<div style="
-background:white;
-padding:20px;
-border-radius:15px;
-margin-bottom:20px;
-box-shadow:0 5px 15px rgba(0,0,0,.08);
-">
+<div class="card">
+    <h2 style="font-size:20px;margin-bottom:15px;">Historial de diagnosticos</h2>
 
-<h3>Estado del Sistema</h3>
-<div style="
-background:white;
-padding:20px;
-border-radius:15px;
-margin-bottom:20px;
-box-shadow:0 5px 15px rgba(0,0,0,.08);
-">
+    {% if diagnosticos %}
+    <table>
+        <tr>
+            <th>Falla</th>
+            <th>Diagnostico</th>
+            <th>Agente</th>
+            <th>Tiempo</th>
+        </tr>
 
-<h3>Indicadores FaultMate</h3>
-
-<br>
-
-<p>Fallas Manuales: 10</p>
-<p>Fallas IA: 10</p>
-<p>Diagnósticos realizados: {{ total_diagnosticos }}</p>
-<p>Tiempo promedio diagnóstico: 5 min</p>
-<p>Precisión estimada: 85%</p>
-
+        {% for d in diagnosticos %}
+        <tr>
+            <td>{{ d.falla }}</td>
+            <td>{{ d.diagnostico }}</td>
+            <td>{{ d.agente }}</td>
+            <td>{{ d.tiempo_diagnostico }} min</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p class="mensaje-vacio">Todavia no hay diagnosticos registrados.</p>
+    {% endif %}
 </div>
 
-<br>
-
-<p>
-Base de datos activa
-</p>
-
-<p>
-IA funcionando
-</p>
-
-<p>
-Diagnósticos almacenados
-</p>
-
-<p>🟢 Django Operativo</p>
-<p>🟢 SQLite Operativa</p>
-<p>🟡 Migración a MySQL Pendiente</p>
-<p>🟡 WAMP Pendiente</p>
-
-</div>
-
-<br><br>
-
-<h2 style="margin-bottom:15px;">
-📋 Historial de Diagnósticos
-</h2>
-
-<br>
-
-<div style="
-background:white;
-padding:20px;
-border-radius:15px;
-box-shadow:0 5px 15px rgba(0,0,0,.08);
-">
-
-<table>
-
-<tr>
-     <th>Falla</th>
-     <th>Diagnóstico</th>
-     <th>Agente</th>
-     <th>Tiempo</th>
- </tr>
-
-{% for d in diagnosticos %}
-
-<tr>
-     <td>{{ d.falla }}</td>
-     <td>{{ d.diagnostico }}</td>
-     <td>{{ d.agente }}</td>
-     <td>{{ d.tiempo_diagnostico }} min</td>
-</tr>
-
-{% endfor %}
-
-</table>
-
-</div>
-
-</body>
-</html>
+{% endblock %}

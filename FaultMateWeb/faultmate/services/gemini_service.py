@@ -1,11 +1,33 @@
+# Este archivo se encarga de "hablar" con la IA de Google (Gemini).
+# La idea es tener en un solo lugar todo lo relacionado con la IA, para
+# que dashboard/views.py solo tenga que llamar a consultar_gemini(falla).
+import os
+
+from dotenv import load_dotenv
 from google import genai
 
-cliente = genai.Client(
-    api_key="AQ.Ab8RN6L5AdGlQbwh1DVCuLRTvcLiEQeywvz4dsUe7EgI39SYKw"
-)
+# Carga las variables del archivo .env (por ejemplo GEMINI_API_KEY).
+load_dotenv()
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# Si no hay clave configurada, "cliente" queda en None y avisamos con un
+# mensaje claro en vez de que el programa se caiga con un error raro.
+cliente = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+
 
 def consultar_gemini(falla):
+    """
+    Le pide a la IA de Gemini un diagnostico para la falla recibida.
+    Devuelve el texto de la respuesta (o un mensaje de error si algo falla).
+    """
+    if cliente is None:
+        return (
+            "Error: no se encontró GEMINI_API_KEY. "
+            "Configura la variable de entorno en un archivo .env."
+        )
 
+    # El "prompt" son las instrucciones que le damos a la IA.
     prompt = f"""
     Eres Faultmate, un experto en mantenimiento industrial.
 

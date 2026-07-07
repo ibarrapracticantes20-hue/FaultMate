@@ -1,66 +1,45 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Login FaultMate</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FaultMate</title>
 
-    <style>
-
-        body{
-            font-family:Arial;
-            background: #f4f4f4;
-        }
-
-        .login{
-            width:350px;
-            margin:100px auto;
-            background:white;
-            padding:20px;
-            border-radius:10px;
-            box-shadow:0px 0px 10px gray;
-        }
-
-        input{
-            width:100%;
-            padding:10px;
-            margin-top:10px;
-        }
-
-        button{
-            width:100%;
-            padding:10px;
-            margin-top:15px;
-        }
-
-    </style>
-
-
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
 </head>
-
-
 <body>
 
+<div class="login-caja">
 
-<div class="login">
+    <h2>FaultMate</h2>
+    <p>Sistema Inteligente de Diagnostico Industrial</p>
 
+    {% if error %}
+    <p class="mensaje-error">{{ error }}</p>
+    {% endif %}
 
-    <h2>FaultMate Login</h2>
+    <!--
+        Usuario de prueba (se crea solo al correr "migrate"):
+        usuario: test
+        contrasena: test123
+    -->
+    <form class="formulario" action="{% url 'login' %}" method="post">
 
-    <p style="text-align:center;">
-        Sistema Inteligente de Diagnóstico Industrial
-    </p>
+        {% csrf_token %}
 
-    <form action="/dashboard/" method="get">
+        <label>Usuario</label>
+        <input type="text" name="usuario" placeholder="Escribe tu usuario" required>
 
-        <input type="text" placeholder="Usuario">
+        <label>Contrasena</label>
+        <input type="password" name="password" placeholder="Escribe tu contrasena" required>
 
+        <button type="submit" class="btn" style="width:100%;">Ingresar</button>
 
-        <input type="password" placeholder="Contraseña">
-
-
-        <button type="submit">
-            Ingresar
-        </button>
-
-    </form> 
+    </form>
 
 </div>
+
+</body>
+</html>

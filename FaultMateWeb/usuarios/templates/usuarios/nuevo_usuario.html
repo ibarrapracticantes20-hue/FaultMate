@@ -1,0 +1,42 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Nuevo usuario - FaultMate{% endblock %}
+
+{% block titulo %}Crear nuevo usuario{% endblock %}
+{% block descripcion %}Esta persona podra iniciar sesion con su correo y contrasena{% endblock %}
+
+{% block content %}
+
+<div class="card">
+
+    {% if error %}
+    <p class="mensaje-error">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST" class="formulario">
+
+        {% csrf_token %}
+
+        <label>Nombre</label>
+        <input type="text" name="nombre" required>
+
+        <label>Correo (se usara para iniciar sesion)</label>
+        <input type="email" name="correo" required>
+
+        <label>Rol</label>
+        <input type="text" name="rol" placeholder="Tecnico" value="Tecnico">
+
+        <label>Contrasena</label>
+        <input type="password" name="password" required>
+
+        <button type="submit" class="btn">Guardar usuario</button>
+
+    </form>
+
+</div>
+
+<br>
+
+<a href="{% url 'usuarios' %}">&larr; Volver a la lista de usuarios</a>
+
+{% endblock %}

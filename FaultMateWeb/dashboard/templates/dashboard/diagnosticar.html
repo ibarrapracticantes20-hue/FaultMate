@@ -1,63 +1,61 @@
-<!DOCTYPE html>
-<html>
+{% extends "dashboard/base.html" %}
 
-<head>
-    <title>FaultMate Diagnóstico</title>
-</head>
+{% block title %}Diagnosticar - FaultMate{% endblock %}
 
-<body>
+{% block titulo %}Diagnostico de fallas{% endblock %}
+{% block descripcion %}Escribe la falla que observas y el sistema buscara un diagnostico{% endblock %}
 
-<h1>FaultMate Diagnóstico Inteligente</h1>
+{% block content %}
 
-<form method="POST">
+<div class="card" style="margin-bottom:20px;">
 
-    {% csrf_token %}
-    
-    <input
-       type="text"
-       name="falla"
-       placeholder="Escribe la falla">
+    <form method="POST" class="formulario">
 
-    <button type="submit">
-        Diagnosticar
-    </button>
+        {% csrf_token %}
 
-</form>
+        <label>Descripcion de la falla</label>
+        <input
+           type="text"
+           name="falla"
+           placeholder="Ej. El motor no arranca"
+           required>
 
-<hr>
+        <button type="submit" class="btn">Diagnosticar</button>
 
+    </form>
+
+</div>
+
+<!--
+    Logica de la pagina (ver dashboard/views.py -> diagnosticar):
+    1. Si la falla ya estaba guardada en la base de datos, se muestra "resultado".
+    2. Si es una falla nueva, se muestra la respuesta generada por la IA (respuesta_gemini).
+    3. Si no se encontro nada, se avisa al usuario.
+    Antes esta plantilla tenia un error de escritura (revisaba una variable
+    llamada "respuest_gemini" que nunca existia) y por eso a veces se
+    mostraban dos mensajes contradictorios al mismo tiempo.
+-->
 {% if resultado %}
 
-<h2>Resultado</h2>
+<div class="resultado-ia">
+    <h2>Resultado encontrado</h2>
+    <p><b>Falla:</b> {{ resultado.falla }}</p>
+    <p><b>Diagnostico:</b> {{ resultado.diagnostico }}</p>
+    <p><b>Agente:</b> {{ resultado.agente }}</p>
+    <p><b>Tiempo:</b> {{ resultado.tiempo_diagnostico }} min</p>
+</div>
 
-<p><b>Falla:</b> {{ resultado.falla }}</p>
-<p><b>Diagnóstico:</b> {{ resultado.diagnostico }}</p>
-<p><b>Agente:</b> {{ resultado.agente }}</p>
-<p><b>Tiempo:</b> {{ resultado.tiempo_diagnostico }} min</p>
+{% elif respuesta_gemini %}
 
-{% elif respuest_gemini %}
-
-<h2>Diagnóstico IA</h2>
-
-<pre>
-{{ respuest_gemini }}
-</pre>
+<div class="resultado-ia">
+    <h2>Diagnostico generado por IA (Gemini)</h2>
+    <p>{{ respuesta_gemini }}</p>
+</div>
 
 {% elif buscado %}
 
-<p>No se encontró un diagnóstico para esa falla</p>
+<p class="mensaje-vacio">No se encontro un diagnostico para esa falla.</p>
 
 {% endif %}
 
-{% if respuesta_gemini %}
-
-<h2>Respuesta de Gemini</h2>
-
-<pre>
-{{ respuesta_gemini }}
-</pre>
-
-{% endif %}
-
-</body>
-</html>
+{% endblock %}

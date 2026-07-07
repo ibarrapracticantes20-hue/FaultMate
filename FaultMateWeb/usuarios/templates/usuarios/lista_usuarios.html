@@ -1,0 +1,40 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Usuarios - FaultMate{% endblock %}
+
+{% block titulo %}Gestion de usuarios{% endblock %}
+{% block descripcion %}Usuarios y perfiles registrados en FaultMate{% endblock %}
+
+{% block content %}
+
+<a href="{% url 'nuevo_usuario' %}" class="btn">+ Nuevo usuario</a>
+
+<br><br>
+
+<div class="card">
+
+    {% if usuarios %}
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Rol</th>
+        </tr>
+
+        {% for usuario in usuarios %}
+        <tr>
+            <td>{{ usuario.id }}</td>
+            <td>{{ usuario.nombre }}</td>
+            <td>{{ usuario.correo }}</td>
+            <td>{{ usuario.rol }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p class="mensaje-vacio">Todavia no hay usuarios registrados.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

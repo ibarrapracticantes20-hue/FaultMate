@@ -1,70 +1,33 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FaultMate</title>
 
-    <style>
-
-        body{
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            margin:0;
-        }
-
-        head{
-            background:#1d7eae;
-            color:white;
-            padding:20px;
-            text-align:center;
-        }
-
-        .menu{
-            width:400px;
-            margin:40px auto;
-        }
-
-        .menu a{ 
-            display:block;
-            background:#003366;
-            color:white;
-            text-decoration:none;
-            padding:15px;
-            margin-bottom:15px;
-            border-radius:10px;
-            text-align:center;
-            font-size:18px;
-            transition:0.3s;
-        }
-
-        .menu a:hover{
-            background:#1d7eae;
-        }
-    
-    </style>
-
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
 </head>
-
 <body>
 
-<header>
-    
+<!-- Pagina publica de bienvenida (todavia no se ha iniciado sesion) -->
+<header class="inicio-header">
     <h1>FaultMate</h1>
-    <h3>Sistema Inteligente de Diagnóstico Industrial</h3>
+    <p>Sistema Inteligente de Diagnostico Industrial</p>
 </header>
 
-<div class="menu">
-
-    <a href="/login/">Login</a>
-
-    <a href="/usuarios/">Usuarios</a>
-
-    <a href="/agentes/">Agentes IA</a>
-
-    <a href="/diagnosticos/">Diagnósticos</a>
-
-    <a href="/dashboard/">Dashboard</a>
-
-</div>
+<!--
+    Antes esta pagina repetia aqui TODO el menu (Dashboard, Diagnosticar,
+    Agentes IA, Usuarios), igual que la barra lateral que se ve despues
+    de iniciar sesion. Eso hacia que el flujo se sintiera repetido: se
+    veia el mismo menu dos veces (uno en el inicio y otro en el sidebar).
+    Como esas paginas ahora requieren haber iniciado sesion, aqui solo
+    dejamos una unica accion clara: iniciar sesion.
+-->
+<nav class="inicio-menu">
+    <a href="/login/">Iniciar sesion</a>
+</nav>
 
 </body>
 </html>

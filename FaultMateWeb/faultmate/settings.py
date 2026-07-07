@@ -76,6 +76,17 @@ TEMPLATES = [
 WSGI_APPLICATION = 'faultmate.wsgi.application'
 
 
+# Autenticacion (inicio/cierre de sesion)
+# ----------------------------------------
+# LOGIN_URL: a donde mandamos a alguien que intenta ver una pagina
+# protegida (con @login_required) sin haber iniciado sesion.
+LOGIN_URL = 'login'
+# A donde va el usuario despues de iniciar sesion correctamente.
+LOGIN_REDIRECT_URL = 'dashboard'
+# A donde va el usuario despues de cerrar sesion.
+LOGOUT_REDIRECT_URL = 'home'
+
+
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 

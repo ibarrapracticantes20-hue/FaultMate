@@ -1,110 +1,45 @@
-<!DOCTYPE html>
-<html>
+{% extends "dashboard/base.html" %}
 
-<head> 
-<title>Agente IA - FaultMate</title>
+{% block title %}Agentes IA - FaultMate{% endblock %}
 
-<style>
+{% block titulo %}Agentes Inteligentes{% endblock %}
+{% block descripcion %}Administracion de agentes IA para el diagnostico industrial{% endblock %}
 
-body{
-    font-family:Arial;
-    background:#f4f6f9;
-    margin:0;
-}
+{% block content %}
 
-.header{
-    background:#003366;
-    color:white;
-    padding:20px;
-}
+<!--
+    Esta pagina antes tenia un titulo de prueba en rojo ({{ mensaje_prueba }})
+    y los botones de "Nuevo", "Editar" y "Eliminar" apuntaban a "#" (es decir,
+    no hacian nada). Tambien nunca se mostraba, porque otra pagina del
+    dashboard "tapaba" esta misma direccion (/agentes/). Ahora esta es la
+    unica pagina para /agentes/ y los botones si funcionan.
+-->
+<a href="{% url 'nuevo_agente' %}" class="btn">+ Nuevo agente</a>
 
-.container{
-    padding:20px;
-}
+<br><br>
 
-.btn{
-    background:#1d7eae;
-    color:white;
-    border:none;
-    padding:10px 15px;
-    border-radius:5px;
-    text-decoration:none;
-}
-
-table{
-    width:100%;
-    background:white;
-    border-collapse:collapse;
-    margin-top:20px;
-}
-
-th{
-    background:#003366;
-    color:white;
-    padding:12px;
-}
-
-td{
-    padding:12px;
-    border:1px solid #ddd;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<h1 style="color:red;">{{ mensaje_prueba }}</h1>
-
-<div class="header">
-    <h1>Módulo Agentes IA</h1>
-</div>
-
-<div class="container">
-
-<a href="#" class="btn">
-+ Nuevo Agente
-</a>
-
-<table>
-
-<tr>
-    <th>ID</th>
-    <th>Nombre</th>
-    <th>Descripción</th>
-    <th>Acciones</th>
-</tr>
+<div class="cards">
 
 {% for agente in agentes %}
 
-<tr>
+<div class="card">
 
-<td>{{ agente.id }}</td>
+    <h3>{{ agente.nombre }}</h3>
+    <p>{{ agente.descripcion }}</p>
 
-<td>{{ agente.nombre}}</td>
+    <br>
 
-<td>{{ agente.descripcion }}</td>
-
-<td>
-
-<a href="#" class="btn">
-Editar
-</a>
-
-<a href="#" class="btn">
-Eliminar
-</a>
-
-</td>
-
-</tr>
-
-{% endfor %}
-
-</table>
+    <a href="{% url 'editar_agente' agente.id %}" class="btn btn-editar">Editar</a>
+    <a href="{% url 'eliminar_agente' agente.id %}" class="btn btn-eliminar">Eliminar</a>
 
 </div>
 
-</body>
-</html>
+{% empty %}
+
+<p class="mensaje-vacio">Todavia no hay agentes IA registrados.</p>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

@@ -1,24 +1,29 @@
+# Modelos (tablas de la base de datos) de la app "agentes".
+# Cada clase se convierte en una tabla, y cada atributo en una columna.
 from django.db import models
 
 
 class Agentes(models.Model):
+    """Un agente IA que ayuda a diagnosticar fallas (ej. "Agente Motores")."""
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
 
-    prompt = models.TextField(
-        blank=True,
-        null=True
-    )
+    # Instrucciones que se le daran a la IA (opcional).
+    prompt = models.TextField(blank=True, null=True)
 
+    # Que tan creativa es la IA al responder (0 = muy literal, 1 = muy creativa).
     temperatura = models.FloatField(default=0.7)
 
+    # Limite de palabras/tokens que puede usar la IA en su respuesta.
     tokens = models.IntegerField(default=1000)
 
     def __str__(self):
+        # Esto es lo que se muestra en el panel de administracion de Django.
         return self.nombre
 
 
 class Falla(models.Model):
+    """Una falla conocida de maquinaria industrial (ej. "Motor no arranca")."""
     nombre = models.CharField(max_length=150)
     descripcion = models.TextField()
 
@@ -27,25 +32,18 @@ class Falla(models.Model):
 
 
 class PreguntaDiagnostico(models.Model):
-    falla = models.ForeignKey(
-        Falla,
-        on_delete=models.CASCADE
-    )
-
+    """Pregunta que el sistema hace al tecnico para diagnosticar una Falla."""
+    falla = models.ForeignKey(Falla, on_delete=models.CASCADE)
     pregunta = models.CharField(max_length=250)
-
-    orden = models.IntegerField(default=1)
+    orden = models.IntegerField(default=1)  # En que orden se muestra la pregunta.
 
     def __str__(self):
         return self.pregunta
 
 
 class CausaRaiz(models.Model):
-    falla = models.ForeignKey(
-        Falla,
-        on_delete=models.CASCADE
-    )
-
+    """Posible causa raiz de una Falla y su accion correctiva sugerida."""
+    falla = models.ForeignKey(Falla, on_delete=models.CASCADE)
     causa = models.CharField(max_length=200)
     accion_correctiva = models.TextField()
 
