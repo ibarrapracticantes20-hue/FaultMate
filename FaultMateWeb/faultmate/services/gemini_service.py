@@ -1,16 +1,9 @@
 # Este archivo se encarga de "hablar" con la IA de Google (Gemini).
 # La idea es tener en un solo lugar todo lo relacionado con la IA, para
 # que dashboard/views.py solo tenga que llamar a consultar_gemini(falla).
-import os
-
-from dotenv import load_dotenv
 from google import genai
 
-# Carga las variables del archivo .env (por ejemplo GEMINI_API_KEY).
-load_dotenv()
-
-# Proyecto escolar: clave hardcodeada de forma directa.
-# Reemplaza el valor por tu clave real de Gemini.
+# Configuracion simple para local: API key directa en codigo.
 GEMINI_API_KEY = "PEGA_AQUI_TU_API_KEY"
 
 # Si no hay clave configurada, "cliente" queda en None y avisamos con un
@@ -43,9 +36,11 @@ def consultar_gemini(falla):
     Acción recomendada:
     """
 
-    respuesta = cliente.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt
-    )
-
-    return respuesta.text
+    try:
+        respuesta = cliente.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+        return respuesta.text
+    except Exception as e:
+        return f"Error al consultar Gemini: {e}"

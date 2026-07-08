@@ -137,3 +137,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
+
+# Tipo por defecto para llaves primarias autocreadas en modelos nuevos.
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

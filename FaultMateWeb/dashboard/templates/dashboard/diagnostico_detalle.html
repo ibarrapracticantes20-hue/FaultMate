@@ -1,0 +1,24 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Detalle de diagnostico - FaultMate{% endblock %}
+
+{% block titulo %}Detalle del diagnostico{% endblock %}
+{% block descripcion %}Aqui puedes leer la informacion completa del diagnostico{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <h2>Falla</h2>
+    <p>{{ diagnostico.falla }}</p>
+
+    <h2>Diagnostico completo</h2>
+    <div class="resultado-ia detalle-diagnostico">{{ diagnostico.diagnostico|linebreaksbr }}</div>
+
+    <p><b>Agente:</b> {{ diagnostico.agente }}</p>
+    <p><b>Tiempo:</b> {{ diagnostico.tiempo_diagnostico }} min</p>
+    <p><b>Fecha:</b> {{ diagnostico.fecha }}</p>
+
+    <p><a href="{% url 'diagnosticar' %}">Volver a diagnosticar</a></p>
+</div>
+
+{% endblock %}

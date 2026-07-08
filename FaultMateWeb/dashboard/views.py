@@ -1,12 +1,80 @@
 # Este archivo contiene las "vistas" de la app dashboard.
 # Una vista es simplemente una funcion de Python que recibe una peticion
 # (request) y devuelve una respuesta (normalmente un render con un template HTML).
+import unicodedata
+
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Diagnostico
 from agentes.models import Agentes
 from faultmate.services.gemini_service import consultar_gemini
+
+
+BASE_CONOCIMIENTO = {
+    'motor no arranca': {
+        'diagnostico': 'Verificar alimentacion electrica, fusibles, contactor y proteccion termica. Se detecta fusible abierto.',
+        'tiempo': 2,
+    },
+    'baja presion hidraulica': {
+        'diagnostico': 'Revisar nivel de aceite, filtro hidraulico y estado de la bomba. Se detecta filtro obstruido.',
+        'tiempo': 3,
+    },
+    'movimiento lento de motor': {
+        'diagnostico': 'Verificar voltaje de alimentacion, sobrecarga mecanica y estado de rodamientos. Se detecta bajo voltaje.',
+        'tiempo': 2,
+    },
+    'movimeinto lento de motor': {
+        'diagnostico': 'Verificar voltaje de alimentacion, sobrecarga mecanica y estado de rodamientos. Se detecta bajo voltaje.',
+        'tiempo': 2,
+    },
+    'fuga de aceite': {
+        'diagnostico': 'Inspeccionar mangueras, sellos y conexiones hidraulicas. Se detecta sello deteriorado.',
+        'tiempo': 2,
+    },
+    'sobrecalentamiento de motor': {
+        'diagnostico': 'Revisar ventilacion, carga aplicada y estado de rodamientos. Se detecta ventilacion insuficiente.',
+        'tiempo': 3,
+    },
+    'vibracion excesiva': {
+        'diagnostico': 'Verificar alineacion, balanceo y desgaste de rodamientos. Se detecta desalineacion del eje.',
+        'tiempo': 2,
+    },
+    'banda detenida': {
+        'diagnostico': 'Revisar tension de banda, motor y sensores de seguridad. Se detecta banda rota.',
+        'tiempo': 2,
+    },
+    'cilindro no avanza': {
+        'diagnostico': 'Verificar presion neumatica, valvulas y actuador. Se detecta valvula atascada.',
+        'tiempo': 2,
+    },
+    'bomba sin presion': {
+        'diagnostico': 'Revisar cebado, valvula de alivio y desgaste interno. Se detecta falta de cebado.',
+        'tiempo': 2,
+    },
+    'ruido en motor': {
+        'diagnostico': 'Revisar rodamientos, lubricacion y elementos sueltos. Se detecta rodamiento desgastado.',
+        'tiempo': 2,
+    },
+}
+
+
+def normalizar_texto(texto):
+    """Normaliza texto para comparar fallas sin tildes y sin mayusculas."""
+    texto = (texto or '').strip().lower()
+    texto = unicodedata.normalize('NFKD', texto)
+    return ''.join(char for char in texto if not unicodedata.combining(char))
+
+
+def buscar_en_base_conocimiento(falla):
+    """Busca coincidencia de la falla en la base manual de conocimiento."""
+    falla_normalizada = normalizar_texto(falla)
+
+    for falla_base, data in BASE_CONOCIMIENTO.items():
+        if falla_base in falla_normalizada or falla_normalizada in falla_base:
+            return data
+
+    return None
 
 
 def home(request):
@@ -105,24 +173,41 @@ def diagnosticar(request):
     3. Si no existe, le preguntamos a la IA (Gemini) y guardamos su respuesta
        para no tener que volver a preguntarle la proxima vez.
     """
-    resultado = None
-    respuesta_gemini = None
+    diagnostico_mostrado = None
     buscado = False
 
     if request.method == 'POST':
         buscado = True
-        falla = request.POST.get('falla')
+        falla = request.POST.get('falla', '').strip()
+
+        # 0) Si la falla esta en la base manual, NO se consulta Gemini.
+        diagnostico_base = buscar_en_base_conocimiento(falla)
+        if diagnostico_base is not None:
+            diagnostico_mostrado = Diagnostico.objects.create(
+                falla=falla,
+                diagnostico=diagnostico_base['diagnostico'],
+                agente='Base de Conocimiento',
+                tiempo_diagnostico=diagnostico_base['tiempo']
+            )
+            return render(
+                request,
+                'dashboard/diagnosticar.html',
+                {
+                    'diagnostico_mostrado': diagnostico_mostrado,
+                    'buscado': buscado
+                }
+            )
 
         # 1) Buscar si la falla ya fue diagnosticada antes.
-        resultado = Diagnostico.objects.filter(
+        diagnostico_mostrado = Diagnostico.objects.filter(
             falla__icontains=falla
         ).first()
 
         # 2) Si no existe un diagnostico previo, se consulta a la IA.
-        if resultado is None:
+        if diagnostico_mostrado is None:
             respuesta_gemini = consultar_gemini(falla)
 
-            Diagnostico.objects.create(
+            diagnostico_mostrado = Diagnostico.objects.create(
                 falla=falla,
                 diagnostico=respuesta_gemini,
                 agente="Gemini IA",
@@ -133,8 +218,14 @@ def diagnosticar(request):
         request,
         'dashboard/diagnosticar.html',
         {
-            'resultado': resultado,
-            'respuesta_gemini': respuesta_gemini,
+            'diagnostico_mostrado': diagnostico_mostrado,
             'buscado': buscado
         }
     )
+
+
+@login_required
+def diagnostico_detalle(request, diagnostico_id):
+    """Muestra el diagnostico completo en una pagina separada."""
+    diagnostico = get_object_or_404(Diagnostico, id=diagnostico_id)
+    return render(request, 'dashboard/diagnostico_detalle.html', {'diagnostico': diagnostico})

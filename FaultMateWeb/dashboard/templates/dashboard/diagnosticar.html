@@ -35,21 +35,15 @@
     llamada "respuest_gemini" que nunca existia) y por eso a veces se
     mostraban dos mensajes contradictorios al mismo tiempo.
 -->
-{% if resultado %}
+{% if diagnostico_mostrado %}
 
 <div class="resultado-ia">
-    <h2>Resultado encontrado</h2>
-    <p><b>Falla:</b> {{ resultado.falla }}</p>
-    <p><b>Diagnostico:</b> {{ resultado.diagnostico }}</p>
-    <p><b>Agente:</b> {{ resultado.agente }}</p>
-    <p><b>Tiempo:</b> {{ resultado.tiempo_diagnostico }} min</p>
-</div>
-
-{% elif respuesta_gemini %}
-
-<div class="resultado-ia">
-    <h2>Diagnostico generado por IA (Gemini)</h2>
-    <p>{{ respuesta_gemini }}</p>
+    <h2>Diagnostico encontrado</h2>
+    <p><b>Falla:</b> {{ diagnostico_mostrado.falla }}</p>
+    <p><b>Diagnostico:</b> {{ diagnostico_mostrado.diagnostico|truncatechars:220 }}</p>
+    <p><a href="{% url 'diagnostico_detalle' diagnostico_mostrado.id %}">Ver mas</a></p>
+    <p><b>Agente:</b> {{ diagnostico_mostrado.agente }}</p>
+    <p><b>Tiempo:</b> {{ diagnostico_mostrado.tiempo_diagnostico }} min</p>
 </div>
 
 {% elif buscado %}

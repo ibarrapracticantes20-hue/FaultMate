@@ -349,6 +349,11 @@ tr:hover td {
     line-height: 1.6;
 }
 
+.detalle-diagnostico {
+    color: var(--texto-normal);
+    font-weight: normal;
+}
+
 /* 12) Responsivo: en pantallas pequenas la barra lateral se acomoda arriba -- */
 @media (max-width: 900px) {
     .layout {
