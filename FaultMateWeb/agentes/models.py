@@ -1,5 +1,6 @@
 # Modelos (tablas de la base de datos) de la app "agentes".
 # Cada clase se convierte en una tabla, y cada atributo en una columna.
+from django.conf import settings
 from django.db import models
 
 
@@ -16,6 +17,9 @@ class Agentes(models.Model):
 
     # Limite de palabras/tokens que puede usar la IA en su respuesta.
     tokens = models.IntegerField(default=1000)
+
+    # Indica si fue creado como agente base del sistema.
+    es_base = models.BooleanField(default=False)
 
     def __str__(self):
         # Esto es lo que se muestra en el panel de administracion de Django.
@@ -49,3 +53,48 @@ class CausaRaiz(models.Model):
 
     def __str__(self):
         return self.causa
+
+
+class AgenteChatMensaje(models.Model):
+    """Historial de conversacion por usuario y por agente."""
+    ROLE_CHOICES = (
+        ('user', 'Usuario'),
+        ('assistant', 'Asistente'),
+    )
+
+    agente = models.ForeignKey(Agentes, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rol = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    contenido = models.TextField()
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['creado_en']
+
+    def __str__(self):
+        return f'{self.agente.nombre} - {self.rol}'
+
+
+class AgenteEvento(models.Model):
+    """Bitacora de eventos para analitica de agentes."""
+    ACTION_CHOICES = (
+        ('created_manual', 'Creado manual'),
+        ('created_generated', 'Creado generado'),
+        ('created_base', 'Creado base'),
+        ('edited', 'Editado'),
+        ('deleted', 'Eliminado'),
+        ('chat_used', 'Usado en chat'),
+    )
+
+    agente = models.ForeignKey(Agentes, on_delete=models.SET_NULL, null=True, blank=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    accion = models.CharField(max_length=30, choices=ACTION_CHOICES)
+    agente_nombre = models.CharField(max_length=120, blank=True)
+    agente_es_base = models.BooleanField(default=False)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-creado_en']
+
+    def __str__(self):
+        return f'{self.accion} - {self.agente_nombre or "agente"}'

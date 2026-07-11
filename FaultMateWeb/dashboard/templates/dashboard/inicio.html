@@ -1,0 +1,90 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Inicio - FaultMate{% endblock %}
+
+{% block titulo %}Bienvenido, {{ request.user.username }}{% endblock %}
+{% block descripcion %}Aqui tienes un resumen rapido y accesos para trabajar en FaultMate{% endblock %}
+
+{% block content %}
+
+<div class="cards">
+    <div class="card">
+        <h2>{{ total_diagnosticos }}</h2>
+        <p>Diagnosticos totales</p>
+    </div>
+    <div class="card">
+        <h2>{{ total_agentes }}</h2>
+        <p>Agentes disponibles</p>
+    </div>
+    <div class="card">
+        <h2>{{ total_usuarios }}</h2>
+        <p>Usuarios registrados</p>
+    </div>
+    <div class="card">
+        <h2>{{ total_preguntas }}</h2>
+        <p>Preguntas acumuladas</p>
+    </div>
+    <div class="card">
+        <h2>{{ conversaciones_usuario }}</h2>
+        <p>Tus bots usados</p>
+    </div>
+</div>
+
+<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));">
+    <div class="card">
+        <h2 style="font-size:22px;">Que puedes hacer aqui</h2>
+        <p>1. Diagnosticar fallas con base de conocimiento y Gemini.</p>
+        <p>2. Chatear con agentes especializados por area.</p>
+        <p>3. Administrar usuarios y agentes.</p>
+        <p>4. Revisar metricas en el Dashboard avanzado.</p>
+        <br>
+        <a href="{% url 'dashboard' %}" class="btn">Ir al Dashboard</a>
+        <a href="{% url 'diagnosticar' %}" class="btn">Diagnosticar ahora</a>
+    </div>
+
+    <div class="card">
+        <h2 style="font-size:22px;">Ultimos bots que usaste</h2>
+        {% if ultimos_bots %}
+            <table>
+                <tr>
+                    <th>Bot</th>
+                    <th>Usos</th>
+                </tr>
+                {% for b in ultimos_bots %}
+                <tr>
+                    <td>{{ b.agente__nombre }}</td>
+                    <td>{{ b.usos }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p class="mensaje-vacio">Aun no has usado chats de agentes.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <h2 style="font-size:22px; margin-bottom:10px;">Ultimos diagnosticos del sistema</h2>
+    {% if recientes_diagnosticos %}
+    <table>
+        <tr>
+            <th>Falla</th>
+            <th>Agente</th>
+            <th>Tiempo</th>
+            <th>Fecha</th>
+        </tr>
+        {% for d in recientes_diagnosticos %}
+        <tr>
+            <td>{{ d.falla }}</td>
+            <td>{{ d.agente }}</td>
+            <td>{{ d.tiempo_diagnostico }} min</td>
+            <td>{{ d.fecha }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p class="mensaje-vacio">Todavia no hay diagnosticos registrados.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

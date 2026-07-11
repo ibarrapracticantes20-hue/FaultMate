@@ -1,9 +1,9 @@
 {% extends "dashboard/base.html" %}
 
-{% block title %}Nuevo usuario - FaultMate{% endblock %}
+{% block title %}Editar usuario - FaultMate{% endblock %}
 
-{% block titulo %}Crear nuevo usuario{% endblock %}
-{% block descripcion %}Esta persona podra iniciar sesion con su correo y contrasena{% endblock %}
+{% block titulo %}Editar usuario{% endblock %}
+{% block descripcion %}Actualiza la informacion de {{ usuario.nombre }}{% endblock %}
 
 {% block content %}
 
@@ -21,7 +21,7 @@
         {{ form.nombre }}
         {% if form.nombre.errors %}<p class="mensaje-error">{{ form.nombre.errors|join:', ' }}</p>{% endif %}
 
-        <label>Correo (se usara para iniciar sesion)</label>
+        <label>Correo (se usa para iniciar sesion)</label>
         {{ form.correo }}
         {% if form.correo.errors %}<p class="mensaje-error">{{ form.correo.errors|join:', ' }}</p>{% endif %}
 
@@ -29,11 +29,7 @@
         {{ form.rol }}
         {% if form.rol.errors %}<p class="mensaje-error">{{ form.rol.errors|join:', ' }}</p>{% endif %}
 
-        <label>Contrasena</label>
-        {{ form.password }}
-        {% if form.password.errors %}<p class="mensaje-error">{{ form.password.errors|join:', ' }}</p>{% endif %}
-
-        <button type="submit" class="btn">Guardar usuario</button>
+        <button type="submit" class="btn">Guardar cambios</button>
 
     </form>
 

@@ -14,29 +14,86 @@
     dashboard "tapaba" esta misma direccion (/agentes/). Ahora esta es la
     unica pagina para /agentes/ y los botones si funcionan.
 -->
+{% if can_manage_agentes %}
 <a href="{% url 'nuevo_agente' %}" class="btn">+ Nuevo agente</a>
+<a href="{% url 'generar_agente' %}" class="btn">Generar agente</a>
+<form method="POST" action="{% url 'generar_agentes_base' %}" style="display:inline; margin-left:8px;">
+    {% csrf_token %}
+    <button type="submit" class="btn">Generar agentes base</button>
+</form>
+{% endif %}
 
 <br><br>
 
+<div class="card" style="margin-bottom:20px;">
+    <h2 style="font-size:22px; margin-bottom:8px;">Agentes base del sistema</h2>
+    <p>Son agentes precargados para iniciar rapido. Puedes chatear con ellos y consultar sus parametros.</p>
+</div>
+
 <div class="cards">
 
-{% for agente in agentes %}
+{% for agente in agentes_base %}
 
 <div class="card">
 
     <h3>{{ agente.nombre }}</h3>
     <p>{{ agente.descripcion }}</p>
+    <p><b>Temperatura:</b> {{ agente.temperatura }}</p>
+    <p><b>Tokens:</b> {{ agente.tokens }}</p>
 
     <br>
 
+    <a href="{% url 'chat_agente' agente.id %}" class="btn">Chat</a>
+    {% if can_manage_agentes %}
     <a href="{% url 'editar_agente' agente.id %}" class="btn btn-editar">Editar</a>
-    <a href="{% url 'eliminar_agente' agente.id %}" class="btn btn-eliminar">Eliminar</a>
+    <form method="POST" action="{% url 'eliminar_agente' agente.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-eliminar">Eliminar</button>
+    </form>
+    {% endif %}
 
 </div>
 
 {% empty %}
 
-<p class="mensaje-vacio">Todavia no hay agentes IA registrados.</p>
+<p class="mensaje-vacio">No hay agentes base cargados.</p>
+
+{% endfor %}
+
+</div>
+
+<div class="card" style="margin-top:20px; margin-bottom:20px;">
+    <h2 style="font-size:22px; margin-bottom:8px;">Agentes personalizados (CRUD)</h2>
+    <p>Aqui van los agentes creados por el equipo. Puedes crear, editar y eliminar segun tu rol.</p>
+</div>
+
+<div class="cards">
+
+{% for agente in agentes_personalizados %}
+
+<div class="card">
+
+    <h3>{{ agente.nombre }}</h3>
+    <p>{{ agente.descripcion }}</p>
+    <p><b>Temperatura:</b> {{ agente.temperatura }}</p>
+    <p><b>Tokens:</b> {{ agente.tokens }}</p>
+
+    <br>
+
+    <a href="{% url 'chat_agente' agente.id %}" class="btn">Chat</a>
+    {% if can_manage_agentes %}
+    <a href="{% url 'editar_agente' agente.id %}" class="btn btn-editar">Editar</a>
+    <form method="POST" action="{% url 'eliminar_agente' agente.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-eliminar">Eliminar</button>
+    </form>
+    {% endif %}
+
+</div>
+
+{% empty %}
+
+<p class="mensaje-vacio">Todavia no hay agentes personalizados. Usa + Nuevo agente o Generar agente.</p>
 
 {% endfor %}
 

@@ -52,4 +52,32 @@
 
 {% endif %}
 
+<div class="card" style="margin-top:20px;">
+    <h2 style="font-size:20px;margin-bottom:15px;">Historial de conversaciones de diagnostico</h2>
+
+    {% if historial_diagnosticos %}
+    <table>
+        <tr>
+            <th>Fecha y hora</th>
+            <th>Falla</th>
+            <th>Agente</th>
+            <th>Tiempo</th>
+            <th>Detalle</th>
+        </tr>
+
+        {% for d in historial_diagnosticos %}
+        <tr>
+            <td>{{ d.fecha|date:"d/m/Y H:i:s" }}</td>
+            <td>{{ d.falla }}</td>
+            <td>{{ d.agente }}</td>
+            <td>{{ d.tiempo_diagnostico }} min</td>
+            <td><a href="{% url 'diagnostico_detalle' d.id %}">Ver más</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p class="mensaje-vacio">Todavia no hay conversaciones de diagnostico en tu historial.</p>
+    {% endif %}
+</div>
+
 {% endblock %}

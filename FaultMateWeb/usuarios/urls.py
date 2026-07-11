@@ -9,4 +9,10 @@ urlpatterns = [
 
     # /usuarios/nuevo/  -> formulario para crear un usuario nuevo
     path('nuevo/', views.nuevo_usuario, name='nuevo_usuario'),
+
+    # /usuarios/editar/5/  -> editar usuario existente
+    path('editar/<int:id>/', views.editar_usuario, name='editar_usuario'),
+
+    # /usuarios/eliminar/5/  -> eliminar usuario existente
+    path('eliminar/<int:id>/', views.eliminar_usuario, name='eliminar_usuario'),
 ]

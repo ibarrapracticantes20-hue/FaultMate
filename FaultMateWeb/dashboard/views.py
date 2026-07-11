@@ -2,12 +2,17 @@
 # Una vista es simplemente una funcion de Python que recibe una peticion
 # (request) y devuelve una respuesta (normalmente un render con un template HTML).
 import unicodedata
+from datetime import datetime
+from datetime import timedelta
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+from django.db.models.functions import TruncDate
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Diagnostico
-from agentes.models import Agentes
+from agentes.models import Agentes, AgenteChatMensaje, AgenteEvento
+from usuarios.models import Usuario
 from faultmate.services.gemini_service import consultar_gemini
 
 
@@ -81,13 +86,47 @@ def home(request):
     """
     Pagina de inicio publica (antes de entrar al sistema).
 
-    Si la persona YA inicio sesion, no tiene sentido mostrarle otra vez
-    la pantalla de bienvenida (antes esto pasaba y se veia como si el
-    "inicio" repitiera todo el menu de nuevo). En ese caso la mandamos
-    directo al dashboard.
+    Si la persona YA inicio sesion, mostramos una bienvenida privada con
+    datos rapidos y actividad reciente. Si no ha iniciado sesion, mostramos
+    la pantalla publica con boton de acceso.
     """
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        total_diagnosticos = Diagnostico.objects.count()
+        total_agentes = Agentes.objects.count()
+        total_usuarios = Usuario.objects.count()
+        total_preguntas = AgenteChatMensaje.objects.filter(rol='user').count()
+
+        conversaciones_usuario = (
+            AgenteChatMensaje.objects
+            .filter(usuario=request.user, rol='user')
+            .values('agente_id')
+            .distinct()
+            .count()
+        )
+
+        recientes_diagnosticos = Diagnostico.objects.order_by('-fecha')[:5]
+
+        ultimos_bots = (
+            AgenteChatMensaje.objects
+            .filter(usuario=request.user, rol='assistant')
+            .values('agente__nombre')
+            .annotate(usos=Count('id'))
+            .order_by('-usos')[:5]
+        )
+
+        return render(
+            request,
+            'dashboard/inicio.html',
+            {
+                'total_diagnosticos': total_diagnosticos,
+                'total_agentes': total_agentes,
+                'total_usuarios': total_usuarios,
+                'total_preguntas': total_preguntas,
+                'conversaciones_usuario': conversaciones_usuario,
+                'recientes_diagnosticos': recientes_diagnosticos,
+                'ultimos_bots': ultimos_bots,
+            },
+        )
 
     return render(request, 'dashboard/index.html')
 
@@ -135,14 +174,162 @@ def logout_view(request):
 @login_required
 def dashboard(request):
     """Pantalla principal con un resumen (numero de diagnosticos, agentes, etc.)."""
-    total_diagnosticos = Diagnostico.objects.count()
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    rol = request.GET.get('rol')
+
+    diagnosticos_qs = Diagnostico.objects.all()
+    chats_qs = AgenteChatMensaje.objects.all()
+    eventos_qs = AgenteEvento.objects.all()
+
+    if fecha_inicio:
+        try:
+            datetime.strptime(fecha_inicio, '%Y-%m-%d')
+            diagnosticos_qs = diagnosticos_qs.filter(fecha__date__gte=fecha_inicio)
+            chats_qs = chats_qs.filter(creado_en__date__gte=fecha_inicio)
+            eventos_qs = eventos_qs.filter(creado_en__date__gte=fecha_inicio)
+        except ValueError:
+            fecha_inicio = ''
+
+    if fecha_fin:
+        try:
+            datetime.strptime(fecha_fin, '%Y-%m-%d')
+            diagnosticos_qs = diagnosticos_qs.filter(fecha__date__lte=fecha_fin)
+            chats_qs = chats_qs.filter(creado_en__date__lte=fecha_fin)
+            eventos_qs = eventos_qs.filter(creado_en__date__lte=fecha_fin)
+        except ValueError:
+            fecha_fin = ''
+
+    roles_validos = {x[0] for x in Usuario.ROLE_CHOICES}
+    if rol:
+        if rol in roles_validos:
+            usuarios_ids = list(
+                Usuario.objects.filter(rol=rol, auth_user__isnull=False)
+                .values_list('auth_user_id', flat=True)
+            )
+            diagnosticos_qs = diagnosticos_qs.filter(usuario_id__in=usuarios_ids)
+            chats_qs = chats_qs.filter(usuario_id__in=usuarios_ids)
+            eventos_qs = eventos_qs.filter(usuario_id__in=usuarios_ids)
+        else:
+            rol = ''
+
+    total_diagnosticos = diagnosticos_qs.count()
     total_agentes = Agentes.objects.count()
-    diagnosticos = Diagnostico.objects.all()
+    total_usuarios = Usuario.objects.count()
+    total_mensajes = chats_qs.count()
+    total_preguntas = chats_qs.filter(rol='user').count()
+
+    conversaciones = (
+        chats_qs
+        .values('agente_id', 'usuario_id')
+        .distinct()
+        .count()
+    )
+
+    agentes_diferentes_usados = (
+        eventos_qs
+        .filter(accion='chat_used')
+        .values('agente_id')
+        .distinct()
+        .count()
+    )
+
+    agentes_base_usados = (
+        eventos_qs
+        .filter(accion='chat_used', agente_es_base=True)
+        .values('agente_nombre')
+        .distinct()
+        .count()
+    )
+
+    agentes_eliminados = eventos_qs.filter(accion='deleted').count()
+
+    usuarios_activos_chat = (
+        chats_qs
+        .filter(rol='user')
+        .values('usuario_id')
+        .distinct()
+        .count()
+    )
+
+    usabilidad = round((usuarios_activos_chat / total_usuarios) * 100, 1) if total_usuarios else 0
+
+    diagnosticos = diagnosticos_qs.order_by('-fecha')[:10]
+
+    # Donut: distribución de diagnósticos por agente.
+    diagnosticos_por_agente_qs = (
+        diagnosticos_qs
+        .values('agente')
+        .annotate(total=Count('id'))
+        .order_by('-total')[:8]
+    )
+    chart_donut_labels = [x['agente'] for x in diagnosticos_por_agente_qs]
+    chart_donut_values = [x['total'] for x in diagnosticos_por_agente_qs]
+
+    # Barra: volumen de chats por agente.
+    chats_por_agente_qs = (
+        chats_qs
+        .filter(rol='user')
+        .values('agente__nombre')
+        .annotate(total=Count('id'))
+        .order_by('-total')[:8]
+    )
+    chart_bar_labels = [x['agente__nombre'] for x in chats_por_agente_qs]
+    chart_bar_values = [x['total'] for x in chats_por_agente_qs]
+
+    # Línea: actividad de preguntas en últimos 7 días.
+    desde = diagnosticos_qs.order_by('-fecha').first()
+    if desde:
+        limite = desde.fecha - timedelta(days=6)
+    else:
+        limite = None
+
+    preguntas_por_dia_qs = (
+        chats_qs
+        .filter(rol='user')
+        .annotate(fecha_dia=TruncDate('creado_en'))
+        .values('fecha_dia')
+        .annotate(total=Count('id'))
+        .order_by('fecha_dia')
+    )
+    if limite:
+        preguntas_por_dia_qs = [x for x in preguntas_por_dia_qs if x['fecha_dia'] >= limite.date()]
+    else:
+        preguntas_por_dia_qs = list(preguntas_por_dia_qs)
+
+    chart_line_labels = [str(x['fecha_dia']) for x in preguntas_por_dia_qs]
+    chart_line_values = [x['total'] for x in preguntas_por_dia_qs]
+
+    eventos_resumen = eventos_qs.values('accion').annotate(total=Count('id')).order_by('accion')
+    eventos_labels = [x['accion'] for x in eventos_resumen]
+    eventos_values = [x['total'] for x in eventos_resumen]
+
+    roles_filtro = Usuario.ROLE_CHOICES
 
     context = {
         'total_diagnosticos': total_diagnosticos,
         'total_agentes': total_agentes,
-        'diagnosticos': diagnosticos
+        'total_usuarios': total_usuarios,
+        'total_mensajes': total_mensajes,
+        'total_preguntas': total_preguntas,
+        'conversaciones': conversaciones,
+        'agentes_diferentes_usados': agentes_diferentes_usados,
+        'agentes_base_usados': agentes_base_usados,
+        'agentes_eliminados': agentes_eliminados,
+        'usabilidad': usabilidad,
+        'diagnosticos': diagnosticos,
+        'chart_donut_labels': chart_donut_labels,
+        'chart_donut_values': chart_donut_values,
+        'chart_bar_labels': chart_bar_labels,
+        'chart_bar_values': chart_bar_values,
+        'chart_line_labels': chart_line_labels,
+        'chart_line_values': chart_line_values,
+        'eventos_labels': eventos_labels,
+        'eventos_values': eventos_values,
+        'roles_filtro': roles_filtro,
+        'filtro_fecha_inicio': fecha_inicio or '',
+        'filtro_fecha_fin': fecha_fin or '',
+        'filtro_rol': rol or '',
     }
 
     return render(request, 'dashboard/dashboard.html', context)
@@ -167,11 +354,7 @@ def diagnosticar(request):
     """
     Vista principal de diagnostico de fallas.
 
-    Logica simple:
-    1. El tecnico escribe la descripcion de una falla.
-    2. Primero buscamos si esa falla ya existe en la base de datos.
-    3. Si no existe, le preguntamos a la IA (Gemini) y guardamos su respuesta
-       para no tener que volver a preguntarle la proxima vez.
+    Registra SIEMPRE un nuevo diagnóstico en historial con fecha y hora.
     """
     diagnostico_mostrado = None
     buscado = False
@@ -179,47 +362,46 @@ def diagnosticar(request):
     if request.method == 'POST':
         buscado = True
         falla = request.POST.get('falla', '').strip()
+        texto_diagnostico = ''
+        agente_origen = 'Gemini IA'
+        tiempo_estimado = 1
 
         # 0) Si la falla esta en la base manual, NO se consulta Gemini.
         diagnostico_base = buscar_en_base_conocimiento(falla)
         if diagnostico_base is not None:
-            diagnostico_mostrado = Diagnostico.objects.create(
-                falla=falla,
-                diagnostico=diagnostico_base['diagnostico'],
-                agente='Base de Conocimiento',
-                tiempo_diagnostico=diagnostico_base['tiempo']
-            )
-            return render(
-                request,
-                'dashboard/diagnosticar.html',
-                {
-                    'diagnostico_mostrado': diagnostico_mostrado,
-                    'buscado': buscado
-                }
-            )
+            texto_diagnostico = diagnostico_base['diagnostico']
+            agente_origen = 'Base de Conocimiento'
+            tiempo_estimado = diagnostico_base['tiempo']
+        else:
+            # Si no esta en base, intenta reutilizar ultimo diagnostico similar.
+            previo = Diagnostico.objects.filter(
+                falla__icontains=falla
+            ).order_by('-fecha').first()
 
-        # 1) Buscar si la falla ya fue diagnosticada antes.
-        diagnostico_mostrado = Diagnostico.objects.filter(
-            falla__icontains=falla
-        ).first()
+            if previo is not None:
+                texto_diagnostico = previo.diagnostico
+                agente_origen = previo.agente
+                tiempo_estimado = previo.tiempo_diagnostico
+            else:
+                texto_diagnostico = consultar_gemini(falla)
 
-        # 2) Si no existe un diagnostico previo, se consulta a la IA.
-        if diagnostico_mostrado is None:
-            respuesta_gemini = consultar_gemini(falla)
+        diagnostico_mostrado = Diagnostico.objects.create(
+            falla=falla,
+            diagnostico=texto_diagnostico,
+            agente=agente_origen,
+            tiempo_diagnostico=tiempo_estimado,
+            usuario=request.user,
+        )
 
-            diagnostico_mostrado = Diagnostico.objects.create(
-                falla=falla,
-                diagnostico=respuesta_gemini,
-                agente="Gemini IA",
-                tiempo_diagnostico=1
-            )
+    historial_diagnosticos = Diagnostico.objects.filter(usuario=request.user).order_by('-fecha')[:20]
 
     return render(
         request,
         'dashboard/diagnosticar.html',
         {
             'diagnostico_mostrado': diagnostico_mostrado,
-            'buscado': buscado
+            'buscado': buscado,
+            'historial_diagnosticos': historial_diagnosticos,
         }
     )
 

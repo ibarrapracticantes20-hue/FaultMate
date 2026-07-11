@@ -1,0 +1,45 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Chat {{ agente.nombre }} - FaultMate{% endblock %}
+
+{% block titulo %}Chat especializado: {{ agente.nombre }}{% endblock %}
+{% block descripcion %}Conversacion persistente para diagnostico tecnico{% endblock %}
+
+{% block content %}
+
+<div class="card" style="margin-bottom:20px;">
+    <p><b>Descripcion:</b> {{ agente.descripcion }}</p>
+    <p><b>Temperatura:</b> {{ agente.temperatura }} | <b>Tokens:</b> {{ agente.tokens }}</p>
+
+    <form method="POST" action="{% url 'limpiar_chat_agente' agente.id %}" style="margin-top:10px;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-eliminar">Limpiar historial</button>
+    </form>
+</div>
+
+<div class="card" style="margin-bottom:20px; max-height:420px; overflow:auto;">
+    {% if mensajes %}
+        {% for msg in mensajes %}
+            <div style="margin-bottom:14px; padding:10px; border-radius:8px; background:#f8fafc;">
+                <p><b>{% if msg.rol == 'user' %}Tu{% else %}{{ agente.nombre }}{% endif %}:</b></p>
+                <div class="resultado-ia">{{ msg.contenido|linebreaksbr }}</div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="mensaje-vacio">Todavia no hay mensajes en este chat.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <form method="POST" class="formulario">
+        {% csrf_token %}
+        <label>Tu mensaje</label>
+        <textarea name="mensaje" rows="4" placeholder="Escribe tu pregunta tecnica para este agente" required></textarea>
+        <button type="submit" class="btn">Enviar</button>
+    </form>
+</div>
+
+<br>
+<a href="{% url 'lista_agentes' %}">&larr; Volver a Agentes</a>
+
+{% endblock %}

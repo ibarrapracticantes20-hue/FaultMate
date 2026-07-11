@@ -20,6 +20,7 @@
             <th>Nombre</th>
             <th>Correo</th>
             <th>Rol</th>
+            <th>Acciones</th>
         </tr>
 
         {% for usuario in usuarios %}
@@ -28,6 +29,13 @@
             <td>{{ usuario.nombre }}</td>
             <td>{{ usuario.correo }}</td>
             <td>{{ usuario.rol }}</td>
+            <td>
+                <a href="{% url 'editar_usuario' usuario.id %}" class="btn btn-editar">Editar</a>
+                <form method="POST" action="{% url 'eliminar_usuario' usuario.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-eliminar">Eliminar</button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </table>

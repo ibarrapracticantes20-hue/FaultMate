@@ -7,13 +7,33 @@
 
 {% block content %}
 
-<!--
-    Esta pagina antes tenia numeros "inventados" (por ejemplo "20 fallas
-    registradas" escrito a mano) que no coincidian con los datos reales
-    de la base de datos. Ahora solo mostramos numeros reales, calculados
-    en dashboard/views.py con Diagnostico.objects.count() y
-    Agentes.objects.count().
--->
+<div class="card" style="margin-bottom:20px;">
+    <h2 style="font-size:20px;margin-bottom:10px;">Filtros del dashboard</h2>
+    <form method="GET" class="formulario" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:end;">
+        <div>
+            <label>Fecha inicio</label>
+            <input type="date" name="fecha_inicio" value="{{ filtro_fecha_inicio }}" style="width:100%;height:52px;font-size:16px;border-radius:10px;">
+        </div>
+        <div>
+            <label>Fecha fin</label>
+            <input type="date" name="fecha_fin" value="{{ filtro_fecha_fin }}" style="width:100%;height:52px;font-size:16px;border-radius:10px;">
+        </div>
+        <div>
+            <label>Tipo de administrador / rol</label>
+            <select name="rol" style="width:100%;height:52px;font-size:16px;border-radius:10px;">
+                <option value="">Todos</option>
+                {% for rol_valor, rol_texto in roles_filtro %}
+                    <option value="{{ rol_valor }}" {% if filtro_rol == rol_valor %}selected{% endif %}>{{ rol_texto }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <button type="submit" class="btn">Aplicar filtros</button>
+            <a href="{% url 'dashboard' %}" class="btn">Limpiar</a>
+        </div>
+    </form>
+</div>
+
 <div class="cards">
 
     <div class="card">
@@ -25,13 +45,77 @@
     <div class="card">
         <div class="icono"><i class="bi bi-robot"></i></div>
         <h2>{{ total_agentes }}</h2>
-        <p>Agentes IA</p>
+        <p>Agentes activos</p>
+    </div>
+
+    <div class="card">
+        <div class="icono"><i class="bi bi-people-fill"></i></div>
+        <h2>{{ total_usuarios }}</h2>
+        <p>Usuarios registrados</p>
+    </div>
+
+    <div class="card">
+        <div class="icono"><i class="bi bi-chat-dots"></i></div>
+        <h2>{{ conversaciones }}</h2>
+        <p>Conversaciones especializadas</p>
+    </div>
+
+    <div class="card">
+        <div class="icono"><i class="bi bi-question-circle"></i></div>
+        <h2>{{ total_preguntas }}</h2>
+        <p>Preguntas de usuarios</p>
+    </div>
+
+    <div class="card">
+        <div class="icono"><i class="bi bi-pie-chart"></i></div>
+        <h2>{{ usabilidad }}%</h2>
+        <p>Usabilidad (usuarios con chat)</p>
+    </div>
+
+    <div class="card">
+        <div class="icono"><i class="bi bi-diagram-3"></i></div>
+        <h2>{{ agentes_diferentes_usados }}</h2>
+        <p>Agentes diferentes usados</p>
+    </div>
+
+    <div class="card">
+        <div class="icono"><i class="bi bi-stars"></i></div>
+        <h2>{{ agentes_base_usados }}</h2>
+        <p>Agentes base usados</p>
+    </div>
+
+    <div class="card">
+        <div class="icono"><i class="bi bi-trash3"></i></div>
+        <h2>{{ agentes_eliminados }}</h2>
+        <p>Agentes eliminados</p>
     </div>
 
 </div>
 
+<div class="cards" style="grid-template-columns:repeat(auto-fit, minmax(320px,1fr));">
+    <div class="card">
+        <h2 style="font-size:20px;margin-bottom:12px;">Diagnosticos por agente</h2>
+        <canvas id="donutDiagnosticos" height="220"></canvas>
+    </div>
+
+    <div class="card">
+        <h2 style="font-size:20px;margin-bottom:12px;">Preguntas por agente (chat)</h2>
+        <canvas id="barChats" height="220"></canvas>
+    </div>
+
+    <div class="card">
+        <h2 style="font-size:20px;margin-bottom:12px;">Preguntas por dia</h2>
+        <canvas id="linePreguntas" height="220"></canvas>
+    </div>
+
+    <div class="card">
+        <h2 style="font-size:20px;margin-bottom:12px;">Eventos de agentes</h2>
+        <canvas id="barEventos" height="220"></canvas>
+    </div>
+</div>
+
 <div class="card">
-    <h2 style="font-size:20px;margin-bottom:15px;">Historial de diagnosticos</h2>
+    <h2 style="font-size:20px;margin-bottom:15px;">Ultimos diagnosticos</h2>
 
     {% if diagnosticos %}
     <table>
@@ -40,6 +124,7 @@
             <th>Diagnostico</th>
             <th>Agente</th>
             <th>Tiempo</th>
+            <th>Fecha</th>
         </tr>
 
         {% for d in diagnosticos %}
@@ -48,6 +133,7 @@
             <td>{{ d.diagnostico }}</td>
             <td>{{ d.agente }}</td>
             <td>{{ d.tiempo_diagnostico }} min</td>
+            <td>{{ d.fecha }}</td>
         </tr>
         {% endfor %}
     </table>
@@ -55,5 +141,85 @@
     <p class="mensaje-vacio">Todavia no hay diagnosticos registrados.</p>
     {% endif %}
 </div>
+
+{{ chart_donut_labels|json_script:"chart-donut-labels" }}
+{{ chart_donut_values|json_script:"chart-donut-values" }}
+{{ chart_bar_labels|json_script:"chart-bar-labels" }}
+{{ chart_bar_values|json_script:"chart-bar-values" }}
+{{ chart_line_labels|json_script:"chart-line-labels" }}
+{{ chart_line_values|json_script:"chart-line-values" }}
+{{ eventos_labels|json_script:"chart-eventos-labels" }}
+{{ eventos_values|json_script:"chart-eventos-values" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const cPrim = '#1d7eae';
+const cPrimOsc = '#0032a0';
+const cPrimCla = '#98dae9';
+const cAcento = '#ff661b';
+const cOsc = '#231f20';
+
+const donutLabels = JSON.parse(document.getElementById('chart-donut-labels').textContent);
+const donutValues = JSON.parse(document.getElementById('chart-donut-values').textContent);
+const barLabels = JSON.parse(document.getElementById('chart-bar-labels').textContent);
+const barValues = JSON.parse(document.getElementById('chart-bar-values').textContent);
+const lineLabels = JSON.parse(document.getElementById('chart-line-labels').textContent);
+const lineValues = JSON.parse(document.getElementById('chart-line-values').textContent);
+const eventosLabels = JSON.parse(document.getElementById('chart-eventos-labels').textContent);
+const eventosValues = JSON.parse(document.getElementById('chart-eventos-values').textContent);
+
+new Chart(document.getElementById('donutDiagnosticos'), {
+    type: 'doughnut',
+    data: {
+        labels: donutLabels,
+        datasets: [{
+            data: donutValues,
+            backgroundColor: [cPrim, cPrimOsc, cPrimCla, cAcento, cOsc, '#22c55e', '#ef4444', '#bdc6c3']
+        }]
+    }
+});
+
+new Chart(document.getElementById('barChats'), {
+    type: 'bar',
+    data: {
+        labels: barLabels,
+        datasets: [{
+            label: 'Preguntas',
+            data: barValues,
+            backgroundColor: cPrim
+        }]
+    },
+    options: {responsive: true, plugins: {legend: {display: false}}}
+});
+
+new Chart(document.getElementById('linePreguntas'), {
+    type: 'line',
+    data: {
+        labels: lineLabels,
+        datasets: [{
+            label: 'Preguntas por dia',
+            data: lineValues,
+            borderColor: cAcento,
+            backgroundColor: 'rgba(255,102,27,0.15)',
+            fill: true,
+            tension: 0.3
+        }]
+    },
+    options: {responsive: true}
+});
+
+new Chart(document.getElementById('barEventos'), {
+    type: 'bar',
+    data: {
+        labels: eventosLabels,
+        datasets: [{
+            label: 'Eventos',
+            data: eventosValues,
+            backgroundColor: [cPrim, cPrimOsc, cPrimCla, cAcento, cOsc, '#22c55e']
+        }]
+    },
+    options: {responsive: true}
+});
+</script>
 
 {% endblock %}

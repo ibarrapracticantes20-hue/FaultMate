@@ -1,4 +1,5 @@
 # Modelo (tabla) de la app "dashboard".
+from django.conf import settings
 from django.db import models
 
 
@@ -10,6 +11,7 @@ class Diagnostico(models.Model):
     falla = models.CharField(max_length=200)
     diagnostico = models.TextField()
     agente = models.CharField(max_length=100)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     fecha = models.DateTimeField(auto_now_add=True)  # Se llena solo al crearse.
     tiempo_diagnostico = models.IntegerField()  # Tiempo en minutos.
 

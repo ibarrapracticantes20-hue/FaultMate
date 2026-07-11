@@ -1,10 +1,12 @@
 # Este archivo se encarga de "hablar" con la IA de Google (Gemini).
 # La idea es tener en un solo lugar todo lo relacionado con la IA, para
 # que dashboard/views.py solo tenga que llamar a consultar_gemini(falla).
+import os
+
 from google import genai
 
-# Configuracion simple para local: API key directa en codigo.
-GEMINI_API_KEY = "PEGA_AQUI_TU_API_KEY"
+# Configuracion recomendada: API key por variable de entorno.
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 # Si no hay clave configurada, "cliente" queda en None y avisamos con un
 # mensaje claro en vez de que el programa se caiga con un error raro.
@@ -40,6 +42,45 @@ def consultar_gemini(falla):
         respuesta = cliente.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt
+        )
+        return respuesta.text
+    except Exception as e:
+        return f"Error al consultar Gemini: {e}"
+
+
+def consultar_gemini_agente(agente, mensaje_usuario, historial=None):
+    """Consulta Gemini usando la configuracion/prompt de un agente y su historial."""
+    if cliente is None:
+        return (
+            "Error: no se encontró GEMINI_API_KEY. "
+            "Configura la variable de entorno o reemplaza PEGA_AQUI_TU_API_KEY."
+        )
+
+    historial = historial or []
+    historial_texto = "\n".join(
+        [f"{item['rol'].upper()}: {item['contenido']}" for item in historial[-12:]]
+    )
+
+    prompt_base = agente.prompt or (
+        f"Eres {agente.nombre}, un agente especializado en mantenimiento industrial."
+    )
+
+    prompt = f"""
+{prompt_base}
+
+Historial reciente:
+{historial_texto}
+
+Mensaje actual del usuario:
+{mensaje_usuario}
+
+Responde en formato claro, tecnico y accionable.
+"""
+
+    try:
+        respuesta = cliente.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
         )
         return respuesta.text
     except Exception as e:

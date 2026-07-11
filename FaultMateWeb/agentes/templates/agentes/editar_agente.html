@@ -9,15 +9,33 @@
 
 <div class="card">
 
+    {% if form.non_field_errors %}
+    <p class="mensaje-error">{{ form.non_field_errors|join:', ' }}</p>
+    {% endif %}
+
     <form method="POST" class="formulario">
 
         {% csrf_token %}
 
         <label>Nombre</label>
-        <input type="text" name="nombre" value="{{ agente.nombre }}" required>
+        {{ form.nombre }}
+        {% if form.nombre.errors %}<p class="mensaje-error">{{ form.nombre.errors|join:', ' }}</p>{% endif %}
 
         <label>Descripcion</label>
-        <textarea name="descripcion" rows="5" required>{{ agente.descripcion }}</textarea>
+        {{ form.descripcion }}
+        {% if form.descripcion.errors %}<p class="mensaje-error">{{ form.descripcion.errors|join:', ' }}</p>{% endif %}
+
+        <label>Prompt</label>
+        {{ form.prompt }}
+        {% if form.prompt.errors %}<p class="mensaje-error">{{ form.prompt.errors|join:', ' }}</p>{% endif %}
+
+        <label>Temperatura (0 a 1)</label>
+        {{ form.temperatura }}
+        {% if form.temperatura.errors %}<p class="mensaje-error">{{ form.temperatura.errors|join:', ' }}</p>{% endif %}
+
+        <label>Tokens maximos</label>
+        {{ form.tokens }}
+        {% if form.tokens.errors %}<p class="mensaje-error">{{ form.tokens.errors|join:', ' }}</p>{% endif %}
 
         <button type="submit" class="btn">Guardar cambios</button>
 
