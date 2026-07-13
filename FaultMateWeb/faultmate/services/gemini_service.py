@@ -1,12 +1,10 @@
 # Este archivo se encarga de "hablar" con la IA de Google (Gemini).
 # La idea es tener en un solo lugar todo lo relacionado con la IA, para
 # que dashboard/views.py solo tenga que llamar a consultar_gemini(falla).
-import os
-
 from google import genai
 
-# Configuracion recomendada: API key por variable de entorno.
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+# Configuracion solicitada: API key hardcodeada.
+GEMINI_API_KEY = "AQ.Ab8RN6IaaoqSAuQ7FbV9FZgImFBxUreYTLyrx5Gmi_koU-1yoA"
 
 # Si no hay clave configurada, "cliente" queda en None y avisamos con un
 # mensaje claro en vez de que el programa se caiga con un error raro.

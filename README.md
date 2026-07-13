@@ -1,6 +1,24 @@
 # FaultMate
 Chatbot de diagnóstico para mantenimiento industrial desarrollado en Botpress Cloud e integrado con Gemini API.
 
+## Inicio rápido (un solo comando)
+
+Desde la carpeta raíz del proyecto ejecuta:
+
+```
+start_faultmate.bat
+```
+
+Ese comando hace todo automáticamente:
+
+1. Crea `.venv` si no existe.
+2. Instala dependencias.
+3. Crea `.env` base si no existe.
+4. Ejecuta migraciones.
+5. Levanta el servidor en `http://127.0.0.1:8000/`.
+
+Nota: en esta versión, la API key de Gemini ya está hardcodeada en el proyecto.
+
 ## Cómo correrlo en tu computadora (local)
 
 1. Entra a la carpeta del proyecto Django:
@@ -17,7 +35,7 @@ Chatbot de diagnóstico para mantenimiento industrial desarrollado en Botpress C
    ```
    python manage.py migrate
    ```
-4. Si quieres que el diagnóstico use la IA de Gemini, coloca tu clave en `faultmate/services/gemini_service.py` reemplazando `PEGA_AQUI_TU_API_KEY`.
+4. La API key de Gemini ya viene hardcodeada en el proyecto para pruebas.
 5. Corre el servidor:
    ```
    python manage.py runserver
