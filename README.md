@@ -49,6 +49,9 @@ Nota: en esta versión, la API key de Gemini ya está hardcodeada en el proyecto
 ## Usuarios de prueba (verificados)
 
 > Estas credenciales son solo para desarrollo local/proyecto escolar.
+>
+> Nota: en la pantalla de login, el campo **Usuario** debe llenarse con el
+> correo (por ejemplo: `genadmin@example.com`).
 
 | Usuario | Contraseña | Nivel |
 | --- | --- | --- |

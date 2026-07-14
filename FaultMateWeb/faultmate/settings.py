@@ -170,7 +170,10 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 if not DEBUG:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # Permite servir estaticos directamente desde finders en entornos
+    # de despliegue simplificados donde no se ejecuta collectstatic.
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+    WHITENOISE_USE_FINDERS = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Tipo por defecto para llaves primarias autocreadas en modelos nuevos.
