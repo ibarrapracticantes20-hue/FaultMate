@@ -7,45 +7,30 @@
 
 {% block content %}
 
-<style>
-    .filtros-grid {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(180px, 1fr));
-        gap: 12px;
-        align-items: end;
-    }
-
-    @media (max-width: 900px) {
-        .filtros-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
 <div class="card" style="margin-bottom:20px;">
-    <h2 style="font-size:20px;margin-bottom:10px;">Filtros del dashboard</h2>
+    <h2 class="filtros-titulo">Filtros del dashboard</h2>
     <form method="GET" class="formulario filtros-grid">
-        <div>
+        <div class="filtro-item">
             <label>Fecha inicio</label>
-            <input type="date" name="fecha_inicio" value="{{ filtro_fecha_inicio }}" style="width:100%;height:52px;font-size:16px;border-radius:10px;">
+            <input type="date" name="fecha_inicio" value="{{ filtro_fecha_inicio }}" class="filtro-control">
         </div>
-        <div>
+        <div class="filtro-item">
             <label>Fecha fin</label>
-            <input type="date" name="fecha_fin" value="{{ filtro_fecha_fin }}" style="width:100%;height:52px;font-size:16px;border-radius:10px;">
+            <input type="date" name="fecha_fin" value="{{ filtro_fecha_fin }}" class="filtro-control">
         </div>
-        <div>
+        <div class="filtro-item">
             <label>Tipo de administrador / rol</label>
-            <select name="rol" style="width:100%;height:52px;font-size:16px;border-radius:10px;">
+            <select name="rol" class="filtro-control">
                 <option value="">Todos</option>
                 {% for rol_valor, rol_texto in roles_filtro %}
                     <option value="{{ rol_valor }}" {% if filtro_rol == rol_valor %}selected{% endif %}>{{ rol_texto }}</option>
                 {% endfor %}
             </select>
         </div>
-        <div>
-            <button type="submit" class="btn">Aplicar filtros</button>
-            <a href="{% url 'dashboard' %}" class="btn">Limpiar</a>
-            <button type="submit" name="export" value="excel" class="btn">Descargar Excel</button>
+        <div class="filtro-acciones">
+            <button type="submit" class="btn btn-filtro">Aplicar filtros</button>
+            <a href="{% url 'dashboard' %}" class="btn btn-filtro">Limpiar</a>
+            <button type="submit" name="export" value="excel" class="btn btn-filtro">Descargar Excel</button>
         </div>
     </form>
 </div>
