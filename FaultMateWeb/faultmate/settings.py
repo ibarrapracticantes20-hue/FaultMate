@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -101,6 +102,16 @@ LOGOUT_REDIRECT_URL = 'home'
 
 DATABASE_URL = os.getenv('DATABASE_URL')
 if DATABASE_URL:
+    if DATABASE_URL.startswith('mysql://') or DATABASE_URL.startswith('mysql+pymysql://'):
+        try:
+            import pymysql
+        except ModuleNotFoundError as exc:
+            raise ImproperlyConfigured(
+                'DATABASE_URL apunta a MySQL, pero falta la dependencia pymysql.'
+            ) from exc
+
+        pymysql.install_as_MySQLdb()
+
     DATABASES = {
         'default': dj_database_url.parse(
             DATABASE_URL,

@@ -4,12 +4,15 @@
 import unicodedata
 from datetime import datetime
 from datetime import timedelta
+from io import BytesIO
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.db.models.functions import TruncDate
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from openpyxl import Workbook
 from .models import Diagnostico
 from agentes.models import Agentes, AgenteChatMensaje, AgenteEvento
 from usuarios.models import Usuario
@@ -60,6 +63,42 @@ BASE_CONOCIMIENTO = {
     'ruido en motor': {
         'diagnostico': 'Revisar rodamientos, lubricacion y elementos sueltos. Se detecta rodamiento desgastado.',
         'tiempo': 2,
+    },
+    'falla en sensor inductivo': {
+        'diagnostico': 'Verificar distancia de sensado, cableado y voltaje de alimentacion. Se detecta desajuste de posicion.',
+        'tiempo': 2,
+    },
+    'variador marca sobrecorriente': {
+        'diagnostico': 'Revisar parametros de rampa, carga mecanica y aislamiento del motor. Se detecta aceleracion demasiado corta.',
+        'tiempo': 3,
+    },
+    'compresor no enciende': {
+        'diagnostico': 'Revisar proteccion termica, presostato y contactor. Se detecta presostato defectuoso.',
+        'tiempo': 3,
+    },
+    'presion neumatica inestable': {
+        'diagnostico': 'Inspeccionar regulador, fugas y drenado de humedad. Se detecta regulador descalibrado.',
+        'tiempo': 2,
+    },
+    'falla de comunicacion plc': {
+        'diagnostico': 'Verificar red industrial, direccionamiento IP y estado de switch. Se detecta conflicto de IP.',
+        'tiempo': 3,
+    },
+    'paro por temperatura alta en horno': {
+        'diagnostico': 'Revisar termopar, controlador PID y ventilacion. Se detecta termopar fuera de rango.',
+        'tiempo': 3,
+    },
+    'cinta transportadora desalineada': {
+        'diagnostico': 'Ajustar rodillos guia, tension y centrado de banda. Se detecta desbalance en rodillo lateral.',
+        'tiempo': 2,
+    },
+    'robot fuera de trayectoria': {
+        'diagnostico': 'Revisar calibracion, referencias de cero y holguras mecanicas. Se detecta perdida de calibracion.',
+        'tiempo': 4,
+    },
+    'consumo electrico elevado en bomba': {
+        'diagnostico': 'Verificar cavitacion, obstrucciones y estado de impulsor. Se detecta obstruccion parcial en succion.',
+        'tiempo': 3,
     },
 }
 
@@ -212,6 +251,33 @@ def dashboard(request):
             eventos_qs = eventos_qs.filter(usuario_id__in=usuarios_ids)
         else:
             rol = ''
+
+    if request.GET.get('export') == 'excel':
+        wb = Workbook()
+        ws = wb.active
+        ws.title = 'Diagnosticos'
+        ws.append(['Fecha', 'Falla', 'Diagnostico', 'Agente', 'Tiempo (min)', 'Usuario'])
+
+        for d in diagnosticos_qs.select_related('usuario').order_by('-fecha'):
+            ws.append([
+                d.fecha.strftime('%Y-%m-%d %H:%M:%S'),
+                d.falla,
+                d.diagnostico,
+                d.agente,
+                d.tiempo_diagnostico,
+                d.usuario.username if d.usuario else '',
+            ])
+
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+
+        response = HttpResponse(
+            output.getvalue(),
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        )
+        response['Content-Disposition'] = 'attachment; filename="faultmate_reporte.xlsx"'
+        return response
 
     total_diagnosticos = diagnosticos_qs.count()
     total_agentes = Agentes.objects.count()

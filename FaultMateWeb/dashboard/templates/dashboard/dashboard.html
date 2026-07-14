@@ -7,9 +7,24 @@
 
 {% block content %}
 
+<style>
+    .filtros-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(180px, 1fr));
+        gap: 12px;
+        align-items: end;
+    }
+
+    @media (max-width: 900px) {
+        .filtros-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
 <div class="card" style="margin-bottom:20px;">
     <h2 style="font-size:20px;margin-bottom:10px;">Filtros del dashboard</h2>
-    <form method="GET" class="formulario" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:end;">
+    <form method="GET" class="formulario filtros-grid">
         <div>
             <label>Fecha inicio</label>
             <input type="date" name="fecha_inicio" value="{{ filtro_fecha_inicio }}" style="width:100%;height:52px;font-size:16px;border-radius:10px;">
@@ -30,6 +45,7 @@
         <div>
             <button type="submit" class="btn">Aplicar filtros</button>
             <a href="{% url 'dashboard' %}" class="btn">Limpiar</a>
+            <button type="submit" name="export" value="excel" class="btn">Descargar Excel</button>
         </div>
     </form>
 </div>
