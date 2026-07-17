@@ -3,79 +3,77 @@
 {% block title %}Inicio - FaultMate{% endblock %}
 
 {% block titulo %}¡Bienvenido de nuevo!{% endblock %}
-{% block descripcion %}Aquí tienes un resumen rápido y accesos para trabajar en FaultMate{% endblock %}
+{% block descripcion %}Resumen visual de operación para trabajar más rápido en FaultMate{% endblock %}
 
 {% block content %}
 
 <div class="cards">
-    <div class="card">
+    <div class="card card-kpi-compact">
         <h2>{{ total_diagnosticos }}</h2>
         <p>Diagnósticos totales</p>
     </div>
-    <div class="card">
+    <div class="card card-kpi-compact">
         <h2>{{ total_agentes }}</h2>
         <p>Agentes disponibles</p>
     </div>
-    <div class="card">
+    <div class="card card-kpi-compact">
         <h2>{{ total_usuarios }}</h2>
         <p>Usuarios registrados</p>
     </div>
-    <div class="card">
+    <div class="card card-kpi-compact">
         <h2>{{ total_preguntas }}</h2>
         <p>Preguntas acumuladas</p>
     </div>
-    <div class="card">
+    <div class="card card-kpi-compact">
         <h2>{{ conversaciones_usuario }}</h2>
         <p>Tus bots usados</p>
     </div>
 </div>
 
-<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));">
-    <div class="card">
-        <h2 style="font-size:22px;">Qué puedes hacer aquí</h2>
-        <p>1. Diagnosticar fallas con base de conocimiento y Gemini.</p>
-        <p>2. Chatear con agentes especializados por área.</p>
-        <p>3. Administrar usuarios y agentes.</p>
-        <p>4. Revisar métricas en el Dashboard avanzado.</p>
-        <br>
-        <a href="{% url 'dashboard' %}" class="btn">Ir al Dashboard</a>
-        <a href="{% url 'diagnosticar' %}" class="btn">Diagnosticar ahora</a>
-    </div>
-
-    <div class="card">
-        <h2 style="font-size:22px;">Ultimos bots que usaste</h2>
-        {% if ultimos_bots %}
-            <table>
-                <tr>
-                    <th>Bot</th>
-                    <th>Usos</th>
-                </tr>
-                {% for b in ultimos_bots %}
-                <tr>
-                    <td>{{ b.agente__nombre }}</td>
-                    <td>{{ b.usos }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-        {% else %}
-            <p class="mensaje-vacio">Aún no has usado chats de agentes.</p>
-        {% endif %}
-    </div>
+<div class="inicio-actions-compact">
+    <a href="{% url 'dashboard' %}" class="btn btn-xs">Ver dashboard</a>
+    <a href="{% url 'diagnosticar' %}" class="btn btn-xs">Diagnosticar</a>
+    <a href="{% url 'diagnosticos' %}" class="btn btn-xs">Ver historial</a>
 </div>
 
-<div class="card" style="margin-bottom:20px;">
-    <h2 style="font-size:22px; margin-bottom:8px;">Área de bienvenida</h2>
-    <p>Desde este panel puedes iniciar diagnóstico, revisar el dashboard o gestionar catálogos del sistema.</p>
-    {% if can_create_users %}
-    <a href="{% url 'nuevo_usuario' %}" class="btn">Crear usuario</a>
-    {% else %}
-    <p class="mensaje-vacio" style="padding:8px 0 0 0;">Tu rol actual no permite crear usuarios.</p>
-    {% endif %}
+<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); margin-top:14px;">
+    <div class="card">
+        <div class="chart-card-header">
+            <h2 class="chart-card-title">% de fallas por tipo</h2>
+            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="inicioDonutFallas" data-chart-title="% de fallas por tipo">Ver en grande</button>
+        </div>
+        <canvas id="inicioDonutFallas" height="220"></canvas>
+    </div>
+
+    <div class="card">
+        <div class="chart-card-header">
+            <h2 class="chart-card-title">% de fallas por agente</h2>
+            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="inicioBarAgentes" data-chart-title="% de fallas por agente">Ver en grande</button>
+        </div>
+        <canvas id="inicioBarAgentes" height="220"></canvas>
+    </div>
+
+    <div class="card">
+        <div class="chart-card-header">
+            <h2 class="chart-card-title">Fallas por día</h2>
+            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="inicioLineDia" data-chart-title="Fallas por día">Ver en grande</button>
+        </div>
+        <canvas id="inicioLineDia" height="220"></canvas>
+    </div>
+
+    <div class="card">
+        <div class="chart-card-header">
+            <h2 class="chart-card-title">Pareto de fallas (80/20)</h2>
+            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="inicioPareto" data-chart-title="Pareto de fallas (80/20)">Ver en grande</button>
+        </div>
+        <canvas id="inicioPareto" height="220"></canvas>
+    </div>
 </div>
 
 <div class="card">
     <h2 style="font-size:22px; margin-bottom:10px;">Últimos diagnósticos del sistema</h2>
     {% if recientes_diagnosticos %}
+    <div class="table-wrap">
     <table>
         <tr>
             <th>Falla</th>
@@ -92,9 +90,197 @@
         </tr>
         {% endfor %}
     </table>
+    </div>
     {% else %}
     <p class="mensaje-vacio">Todavía no hay diagnósticos registrados.</p>
     {% endif %}
 </div>
+
+<div class="card">
+    <h2 style="font-size:20px; margin-bottom:10px;">Últimos bots que usaste</h2>
+    {% if ultimos_bots %}
+        <div class="table-wrap">
+        <table>
+            <tr>
+                <th>Bot</th>
+                <th>Usos</th>
+            </tr>
+            {% for b in ultimos_bots %}
+            <tr>
+                <td>{{ b.agente__nombre }}</td>
+                <td>{{ b.usos }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        </div>
+    {% else %}
+        <p class="mensaje-vacio">Aún no has usado chats de agentes.</p>
+    {% endif %}
+</div>
+
+<dialog id="chartModal" class="chart-modal" aria-labelledby="chartModalTitle">
+    <div class="chart-modal-content">
+        <div class="chart-modal-header">
+            <h3 id="chartModalTitle">Gráfica</h3>
+            <button type="button" class="btn btn-xs" id="chartModalClose">Cerrar</button>
+        </div>
+        <div class="chart-modal-body">
+            <canvas id="chartModalCanvas"></canvas>
+        </div>
+    </div>
+</dialog>
+
+{{ inicio_chart_raw_diagnosticos|json_script:"inicio-chart-raw-diagnosticos" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const cPrim = '#1d7eae';
+const cPrimOsc = '#0032a0';
+const cPrimCla = '#98dae9';
+const cAcento = '#ff661b';
+const cOsc = '#231f20';
+const paleta = [cPrim, cPrimOsc, cPrimCla, cAcento, cOsc, '#22c55e', '#ef4444', '#bdc6c3'];
+
+const rawDiagnosticos = JSON.parse(document.getElementById('inicio-chart-raw-diagnosticos').textContent);
+const chartRegistry = {};
+let modalChart = null;
+
+function cloneDeep(data) {
+    return structuredClone(data);
+}
+
+function contarPorClave(items, key) {
+    const mapa = {};
+    for (const item of items) {
+        const valor = item[key] || 'Sin dato';
+        mapa[valor] = (mapa[valor] || 0) + 1;
+    }
+    return mapa;
+}
+
+function mapToSortedEntries(mapa) {
+    return Object.entries(mapa).sort((a, b) => b[1] - a[1]);
+}
+
+function porcentaje(valor, total) {
+    if (!total) return 0;
+    return Number(((valor / total) * 100).toFixed(1));
+}
+
+function buildCharts() {
+    const fallas = mapToSortedEntries(contarPorClave(rawDiagnosticos, 'falla')).slice(0, 8);
+    const agentes = mapToSortedEntries(contarPorClave(rawDiagnosticos, 'agente')).slice(0, 8);
+    const dias = Object.entries(contarPorClave(rawDiagnosticos, 'fecha_dia')).sort((a, b) => a[0].localeCompare(b[0]));
+
+    const totalFallas = fallas.reduce((acc, curr) => acc + curr[1], 0);
+    const totalAgentes = agentes.reduce((acc, curr) => acc + curr[1], 0);
+
+    let acumulado = 0;
+    const pareto = fallas.map((item) => {
+        acumulado += item[1];
+        return porcentaje(acumulado, totalFallas);
+    });
+
+    chartRegistry.inicioDonutFallas = {
+        type: 'doughnut',
+        data: {
+            labels: fallas.map((x) => x[0]),
+            datasets: [{ data: fallas.map((x) => porcentaje(x[1], totalFallas)), backgroundColor: paleta }],
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } },
+        },
+    };
+
+    chartRegistry.inicioBarAgentes = {
+        type: 'bar',
+        data: {
+            labels: agentes.map((x) => x[0]),
+            datasets: [{ label: '% de fallas', data: agentes.map((x) => porcentaje(x[1], totalAgentes)), backgroundColor: cPrim }],
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, max: 100 } },
+        },
+    };
+
+    chartRegistry.inicioLineDia = {
+        type: 'line',
+        data: {
+            labels: dias.map((x) => x[0]),
+            datasets: [{ label: 'Cantidad', data: dias.map((x) => x[1]), borderColor: cAcento, backgroundColor: 'rgba(255,102,27,0.15)', fill: true, tension: 0.3 }],
+        },
+        options: { responsive: true },
+    };
+
+    chartRegistry.inicioPareto = {
+        type: 'bar',
+        data: {
+            labels: fallas.map((x) => x[0]),
+            datasets: [
+                { type: 'bar', label: 'Cantidad', data: fallas.map((x) => x[1]), backgroundColor: cPrimCla, yAxisID: 'y' },
+                { type: 'line', label: 'Acumulado %', data: pareto, borderColor: cAcento, fill: false, tension: 0.25, yAxisID: 'y1' },
+            ],
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: 'Cantidad' } },
+                y1: { beginAtZero: true, max: 100, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Acumulado %' } },
+            },
+        },
+    };
+
+    Object.entries(chartRegistry).forEach(([id, config]) => {
+        const canvas = document.getElementById(id);
+        if (canvas) {
+            const chart = new Chart(canvas, config);
+            chartRegistry[id].instance = chart;
+        }
+    });
+}
+
+function openChartModal(chartId, title) {
+    const modal = document.getElementById('chartModal');
+    const modalCanvas = document.getElementById('chartModalCanvas');
+    const chartConfig = chartRegistry[chartId];
+
+    if (!chartConfig || !chartConfig.instance) return;
+
+    modal.showModal();
+    modal.setAttribute('aria-hidden', 'false');
+
+    if (modalChart) {
+        modalChart.destroy();
+    }
+
+    modalChart = new Chart(modalCanvas, {
+        type: chartConfig.instance.config.type,
+        data: cloneDeep(chartConfig.instance.data),
+        options: cloneDeep(chartConfig.instance.options),
+    });
+}
+
+function closeChartModal() {
+    const modal = document.getElementById('chartModal');
+    modal.close();
+    if (modalChart) {
+        modalChart.destroy();
+        modalChart = null;
+    }
+}
+
+document.querySelectorAll('.chart-expand-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        openChartModal(btn.dataset.chartId, btn.dataset.chartTitle || 'Gráfica');
+    });
+});
+
+document.getElementById('chartModalClose').addEventListener('click', closeChartModal);
+
+buildCharts();
+</script>
 
 {% endblock %}

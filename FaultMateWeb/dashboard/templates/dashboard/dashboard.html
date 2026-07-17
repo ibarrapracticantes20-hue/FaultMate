@@ -95,30 +95,46 @@
 
 <div class="cards" style="grid-template-columns:repeat(auto-fit, minmax(320px,1fr));">
     <div class="card">
-        <h2 style="font-size:20px;margin-bottom:12px;">% de fallas por tipo</h2>
+        <div class="chart-card-header">
+            <h2 class="chart-card-title">% de fallas por tipo</h2>
+            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="donutFallas" data-chart-title="% de fallas por tipo">Ver en grande</button>
+        </div>
         <canvas id="donutFallas" height="220"></canvas>
     </div>
 
     <div class="card">
-        <h2 style="font-size:20px;margin-bottom:12px;">% de fallas por agente</h2>
+        <div class="chart-card-header">
+            <h2 class="chart-card-title">% de fallas por agente</h2>
+            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="barAgentes" data-chart-title="% de fallas por agente">Ver en grande</button>
+        </div>
         <canvas id="barAgentes" height="220"></canvas>
     </div>
 
     <div class="card">
-        <h2 style="font-size:20px;margin-bottom:12px;">Fallas por día</h2>
+        <div class="chart-card-header">
+            <h2 class="chart-card-title">Fallas por día</h2>
+            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="lineFallasDia" data-chart-title="Fallas por día">Ver en grande</button>
+        </div>
         <canvas id="lineFallasDia" height="220"></canvas>
     </div>
 
     <div class="card">
-        <h2 style="font-size:20px;margin-bottom:12px;">Pareto de fallas (80/20)</h2>
+        <div class="chart-card-header">
+            <h2 class="chart-card-title">Pareto de fallas (80/20)</h2>
+            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="paretoFallas" data-chart-title="Pareto de fallas (80/20)">Ver en grande</button>
+        </div>
         <canvas id="paretoFallas" height="220"></canvas>
     </div>
 </div>
 
 <div class="card">
-    <h2 style="font-size:20px;margin-bottom:15px;">Últimos diagnósticos</h2>
+    <div class="chart-card-header">
+        <h2 class="chart-card-title">Últimos diagnósticos</h2>
+        <button type="button" class="btn btn-xs" id="tablaExpandBtn">Ver en grande</button>
+    </div>
 
     {% if diagnosticos %}
+    <div class="table-wrap" id="tablaDiagnosticosWrap">
     <table>
         <tr>
             <th>Falla</th>
@@ -138,10 +154,23 @@
         </tr>
         {% endfor %}
     </table>
+    </div>
     {% else %}
     <p class="mensaje-vacio">Todavía no hay diagnósticos registrados.</p>
     {% endif %}
 </div>
+
+<dialog id="chartModal" class="chart-modal" aria-labelledby="chartModalTitle">
+    <div class="chart-modal-content">
+        <div class="chart-modal-header">
+            <h3 id="chartModalTitle">Vista ampliada</h3>
+            <button type="button" class="btn btn-xs" id="chartModalClose">Cerrar</button>
+        </div>
+        <div class="chart-modal-body" id="chartModalBody">
+            <canvas id="chartModalCanvas"></canvas>
+        </div>
+    </div>
+</dialog>
 
 {{ chart_raw_diagnosticos|json_script:"chart-raw-diagnosticos" }}
 
@@ -166,6 +195,47 @@ let chartDonut = null;
 let chartBar = null;
 let chartLine = null;
 let chartPareto = null;
+let modalChart = null;
+
+function cloneDeep(data) {
+    return structuredClone(data);
+}
+
+function openModal(title) {
+    const modal = document.getElementById('chartModal');
+    document.getElementById('chartModalTitle').textContent = title || 'Vista ampliada';
+    modal.showModal();
+}
+
+function closeModal() {
+    const modal = document.getElementById('chartModal');
+    modal.close();
+    const body = document.getElementById('chartModalBody');
+    body.innerHTML = '<canvas id="chartModalCanvas"></canvas>';
+    if (modalChart) {
+        modalChart.destroy();
+        modalChart = null;
+    }
+}
+
+function abrirGraficaEnGrande(chartInstance, titulo) {
+    if (!chartInstance) return;
+    openModal(titulo);
+    const canvas = document.getElementById('chartModalCanvas');
+    modalChart = new Chart(canvas, {
+        type: chartInstance.config.type,
+        data: cloneDeep(chartInstance.data),
+        options: cloneDeep(chartInstance.options),
+    });
+}
+
+function abrirTablaEnGrande() {
+    const tablaWrap = document.getElementById('tablaDiagnosticosWrap');
+    if (!tablaWrap) return;
+    openModal('Últimos diagnósticos');
+    const body = document.getElementById('chartModalBody');
+    body.innerHTML = '<div class="table-modal-wrap">' + tablaWrap.innerHTML + '</div>';
+}
 
 function contarPorClave(items, key) {
     const mapa = {};
@@ -374,6 +444,24 @@ function reconstruirGraficas() {
 }
 
 reconstruirGraficas();
+
+document.querySelectorAll('.chart-expand-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        const chartId = btn.dataset.chartId;
+        const title = btn.dataset.chartTitle || 'Gráfica';
+        if (chartId === 'donutFallas') abrirGraficaEnGrande(chartDonut, title);
+        if (chartId === 'barAgentes') abrirGraficaEnGrande(chartBar, title);
+        if (chartId === 'lineFallasDia') abrirGraficaEnGrande(chartLine, title);
+        if (chartId === 'paretoFallas') abrirGraficaEnGrande(chartPareto, title);
+    });
+});
+
+const tablaExpandBtn = document.getElementById('tablaExpandBtn');
+if (tablaExpandBtn) {
+    tablaExpandBtn.addEventListener('click', abrirTablaEnGrande);
+}
+
+document.getElementById('chartModalClose').addEventListener('click', closeModal);
 </script>
 
 {% endblock %}

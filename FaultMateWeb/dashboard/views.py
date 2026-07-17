@@ -144,6 +144,18 @@ def home(request):
 
         recientes_diagnosticos = Diagnostico.objects.order_by('-fecha')[:5]
 
+        diagnosticos_data = []
+        for item in Diagnostico.objects.order_by('-fecha'):
+            diagnosticos_data.append(
+                {
+                    'id': item.id,
+                    'falla': item.falla,
+                    'agente': item.agente,
+                    'fecha_dia': item.fecha.strftime('%Y-%m-%d'),
+                    'tiempo_diagnostico': item.tiempo_diagnostico,
+                }
+            )
+
         ultimos_bots = (
             AgenteChatMensaje.objects
             .filter(usuario=request.user, rol='assistant')
@@ -163,6 +175,7 @@ def home(request):
                 'conversaciones_usuario': conversaciones_usuario,
                 'recientes_diagnosticos': recientes_diagnosticos,
                 'ultimos_bots': ultimos_bots,
+                'inicio_chart_raw_diagnosticos': diagnosticos_data,
                 'can_create_users': get_user_role(request.user) == ROLE_DESARROLLADOR,
             },
         )
