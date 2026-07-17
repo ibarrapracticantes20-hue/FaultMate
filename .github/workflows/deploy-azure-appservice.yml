@@ -15,10 +15,6 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-      AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
-      AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
 
     steps:
       - name: Checkout
@@ -48,30 +44,9 @@ jobs:
           cd FaultMateWeb
           zip -r ../release.zip . -x '*.git*' '*__pycache__*' '*.pyc' '.venv/*' 'venv/*' '.env'
 
-      - name: Azure Login
-        if: ${{ env.AZURE_CREDENTIALS != '' }}
-        uses: azure/login@v2
-        with:
-          creds: ${{ env.AZURE_CREDENTIALS }}
-
-      - name: Validate deployment secrets
-        run: |
-          if [ -z "${{ env.AZURE_CREDENTIALS }}" ] && [ -z "${{ env.AZURE_WEBAPP_PUBLISH_PROFILE }}" ]; then
-            echo "Falta configurar AZURE_CREDENTIALS o AZURE_WEBAPP_PUBLISH_PROFILE en GitHub Secrets."
-            exit 1
-          fi
-
       - name: Deploy to Azure Web App
-        if: ${{ env.AZURE_CREDENTIALS != '' }}
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          package: release.zip
-
-      - name: Deploy to Azure Web App (Publish Profile)
-        if: ${{ env.AZURE_CREDENTIALS == '' && env.AZURE_WEBAPP_PUBLISH_PROFILE != '' }}
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ env.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: release.zip
