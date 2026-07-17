@@ -1,12 +1,6 @@
-name: Deploy Django to Azure App Service
+name: Legacy Deploy Django to Azure App Service
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - FaultMateWeb/**
-      - .github/workflows/deploy-azure-appservice.yml
   workflow_dispatch:
 
 permissions:
