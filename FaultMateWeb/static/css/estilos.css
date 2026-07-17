@@ -91,7 +91,7 @@ a {
 }
 
 .brand-logo-sidebar {
-    width: 195px;
+    width: 148px;
     max-width: 100%;
     height: auto;
     border-radius: 10px;
@@ -331,7 +331,7 @@ tr:hover td {
 }
 
 .brand-logo-login {
-    width: 220px;
+    width: 170px;
     max-width: 100%;
     height: auto;
     background: #ffffff;
@@ -754,10 +754,37 @@ tr:hover td {
 
 .btn.btn-xs {
     min-width: 0;
-    height: 32px;
+    height: 31px;
     padding: 0 10px;
-    font-size: 13px;
+    font-size: 12px;
     border-radius: 8px;
+}
+
+.btn-focus {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #e7f5fb;
+    color: #0b4f7c;
+    border: 1px solid #b9dff0;
+    min-width: 0;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.btn-focus i {
+    font-size: 12px;
+}
+
+.btn-focus:hover {
+    background: #d4ecf7;
+    color: #083b5d;
+    border-color: #98cde5;
+    transform: translateY(-1px);
 }
 
 .card-kpi-compact h2 {
@@ -784,7 +811,10 @@ tr:hover td {
 }
 
 .chart-card-title {
-    font-size: 20px;
+    font-size: 17px;
+    color: #145073;
+    font-weight: 700;
+    line-height: 1.25;
     margin: 0;
 }
 
@@ -826,6 +856,7 @@ tr:hover td {
 .chart-modal-header h3 {
     margin: 0;
     color: #0f2f5e;
+    font-size: 16px;
 }
 
 .chart-modal-body {
@@ -835,7 +866,7 @@ tr:hover td {
 
 .chart-modal-body canvas {
     width: 100% !important;
-    min-height: 420px;
+    min-height: 380px;
 }
 
 .table-modal-wrap {

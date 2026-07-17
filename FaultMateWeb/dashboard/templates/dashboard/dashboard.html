@@ -96,32 +96,40 @@
 <div class="cards" style="grid-template-columns:repeat(auto-fit, minmax(320px,1fr));">
     <div class="card">
         <div class="chart-card-header">
-            <h2 class="chart-card-title">% de fallas por tipo</h2>
-            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="donutFallas" data-chart-title="% de fallas por tipo">Ver en grande</button>
+            <h2 class="chart-card-title">Distribución de fallas</h2>
+            <button type="button" class="btn btn-focus chart-expand-btn" data-chart-id="donutFallas" data-chart-title="Distribución de fallas">
+                <i class="bi bi-zoom-in"></i><span>Enfoque</span>
+            </button>
         </div>
         <canvas id="donutFallas" height="220"></canvas>
     </div>
 
     <div class="card">
         <div class="chart-card-header">
-            <h2 class="chart-card-title">% de fallas por agente</h2>
-            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="barAgentes" data-chart-title="% de fallas por agente">Ver en grande</button>
+            <h2 class="chart-card-title">Distribución por agente</h2>
+            <button type="button" class="btn btn-focus chart-expand-btn" data-chart-id="barAgentes" data-chart-title="Distribución por agente">
+                <i class="bi bi-zoom-in"></i><span>Enfoque</span>
+            </button>
         </div>
         <canvas id="barAgentes" height="220"></canvas>
     </div>
 
     <div class="card">
         <div class="chart-card-header">
-            <h2 class="chart-card-title">Fallas por día</h2>
-            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="lineFallasDia" data-chart-title="Fallas por día">Ver en grande</button>
+            <h2 class="chart-card-title">Tendencia diaria de incidencias</h2>
+            <button type="button" class="btn btn-focus chart-expand-btn" data-chart-id="lineFallasDia" data-chart-title="Tendencia diaria de incidencias">
+                <i class="bi bi-zoom-in"></i><span>Enfoque</span>
+            </button>
         </div>
         <canvas id="lineFallasDia" height="220"></canvas>
     </div>
 
     <div class="card">
         <div class="chart-card-header">
-            <h2 class="chart-card-title">Pareto de fallas (80/20)</h2>
-            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="paretoFallas" data-chart-title="Pareto de fallas (80/20)">Ver en grande</button>
+            <h2 class="chart-card-title">Análisis Pareto de incidencias</h2>
+            <button type="button" class="btn btn-focus chart-expand-btn" data-chart-id="paretoFallas" data-chart-title="Análisis Pareto de incidencias">
+                <i class="bi bi-zoom-in"></i><span>Enfoque</span>
+            </button>
         </div>
         <canvas id="paretoFallas" height="220"></canvas>
     </div>
@@ -130,7 +138,9 @@
 <div class="card">
     <div class="chart-card-header">
         <h2 class="chart-card-title">Últimos diagnósticos</h2>
-        <button type="button" class="btn btn-xs" id="tablaExpandBtn">Ver en grande</button>
+        <button type="button" class="btn btn-focus" id="tablaExpandBtn">
+            <i class="bi bi-arrows-fullscreen"></i><span>Enfoque</span>
+        </button>
     </div>
 
     {% if diagnosticos %}
@@ -198,7 +208,36 @@ let chartPareto = null;
 let modalChart = null;
 
 function cloneDeep(data) {
-    return structuredClone(data);
+    if (typeof structuredClone === 'function') {
+        return structuredClone(data);
+    }
+    if (Array.isArray(data)) {
+        return data.map(cloneDeep);
+    }
+    if (data && typeof data === 'object') {
+        const out = {};
+        for (const [key, value] of Object.entries(data)) {
+            out[key] = cloneDeep(value);
+        }
+        return out;
+    }
+    return data;
+}
+
+function shortLabel(texto, maxLen = 24) {
+    const txt = (texto || '').trim();
+    if (txt.length <= maxLen) return txt;
+    return txt.slice(0, maxLen - 1) + '…';
+}
+
+function activarFiltro(clave, valor) {
+    const valorActual = estadoCruce[clave];
+    estadoCruce.falla = null;
+    estadoCruce.agente = null;
+    estadoCruce.fecha_dia = null;
+    if (valorActual !== valor) {
+        estadoCruce[clave] = valor;
+    }
 }
 
 function openModal(title) {
@@ -275,6 +314,10 @@ function reconstruirGraficas() {
     const dias = Object.entries(contarPorClave(paraLinea, 'fecha_dia')).sort((a, b) => a[0].localeCompare(b[0]));
     const paretoFallas = mapToSortedEntries(contarPorClave(paraPareto, 'falla')).slice(0, 8);
 
+    const fallasLabelCorta = fallas.map((x) => shortLabel(x[0]));
+    const agentesLabelCorta = agentes.map((x) => shortLabel(x[0], 20));
+    const paretoLabelCorta = paretoFallas.map((x) => shortLabel(x[0], 16));
+
     const totalFallas = fallas.reduce((acc, curr) => acc + curr[1], 0);
     const totalAgentes = agentes.reduce((acc, curr) => acc + curr[1], 0);
     const totalPareto = paretoFallas.reduce((acc, curr) => acc + curr[1], 0);
@@ -293,7 +336,7 @@ function reconstruirGraficas() {
     chartDonut = new Chart(document.getElementById('donutFallas'), {
         type: 'doughnut',
         data: {
-            labels: fallas.map((x) => x[0]),
+            labels: fallasLabelCorta,
             datasets: [{
                 data: fallas.map((x) => porcentaje(x[1], totalFallas)),
                 backgroundColor: paleta,
@@ -303,10 +346,18 @@ function reconstruirGraficas() {
         options: {
             responsive: true,
             plugins: {
-                legend: { position: 'bottom' },
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 10,
+                        boxHeight: 10,
+                        font: { size: 11 },
+                        padding: 12,
+                    },
+                },
                 tooltip: {
                     callbacks: {
-                        label: (ctx) => `${ctx.label}: ${ctx.parsed}%`,
+                        label: (ctx) => `${fallas[ctx.dataIndex][0]}: ${ctx.parsed}%`,
                     },
                 },
             },
@@ -314,7 +365,7 @@ function reconstruirGraficas() {
                 if (!elements.length) return;
                 const index = elements[0].index;
                 const seleccion = fallas[index][0];
-                estadoCruce.falla = estadoCruce.falla === seleccion ? null : seleccion;
+                activarFiltro('falla', seleccion);
                 reconstruirGraficas();
             },
         },
@@ -323,9 +374,9 @@ function reconstruirGraficas() {
     chartBar = new Chart(document.getElementById('barAgentes'), {
         type: 'bar',
         data: {
-            labels: agentes.map((x) => x[0]),
+            labels: agentesLabelCorta,
             datasets: [{
-                label: '% de fallas',
+                label: '% incidencias',
                 data: agentes.map((x) => porcentaje(x[1], totalAgentes)),
                 backgroundColor: cPrim,
             }],
@@ -336,7 +387,7 @@ function reconstruirGraficas() {
                 legend: { display: false },
                 tooltip: {
                     callbacks: {
-                        label: (ctx) => `${ctx.parsed.y}%`,
+                        label: (ctx) => `${agentes[ctx.dataIndex][0]}: ${ctx.parsed.y}%`,
                     },
                 },
             },
@@ -350,7 +401,7 @@ function reconstruirGraficas() {
                 if (!elements.length) return;
                 const index = elements[0].index;
                 const seleccion = agentes[index][0];
-                estadoCruce.agente = estadoCruce.agente === seleccion ? null : seleccion;
+                activarFiltro('agente', seleccion);
                 reconstruirGraficas();
             },
         },
@@ -361,7 +412,7 @@ function reconstruirGraficas() {
         data: {
             labels: dias.map((x) => x[0]),
             datasets: [{
-                label: 'Cantidad de fallas',
+                label: 'Incidencias',
                 data: dias.map((x) => x[1]),
                 borderColor: cAcento,
                 backgroundColor: 'rgba(255,102,27,0.15)',
@@ -371,11 +422,18 @@ function reconstruirGraficas() {
         },
         options: {
             responsive: true,
+            plugins: {
+                legend: { labels: { font: { size: 11 } } },
+            },
+            scales: {
+                x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 6, font: { size: 10 } } },
+                y: { ticks: { font: { size: 10 } } },
+            },
             onClick: (_, elements) => {
                 if (!elements.length) return;
                 const index = elements[0].index;
                 const seleccion = dias[index][0];
-                estadoCruce.fecha_dia = estadoCruce.fecha_dia === seleccion ? null : seleccion;
+                activarFiltro('fecha_dia', seleccion);
                 reconstruirGraficas();
             },
         },
@@ -384,11 +442,11 @@ function reconstruirGraficas() {
     chartPareto = new Chart(document.getElementById('paretoFallas'), {
         type: 'bar',
         data: {
-            labels: paretoFallas.map((x) => x[0]),
+            labels: paretoLabelCorta,
             datasets: [
                 {
                     type: 'bar',
-                    label: 'Cantidad',
+                    label: 'Incidencias',
                     data: paretoFallas.map((x) => x[1]),
                     backgroundColor: cPrimCla,
                     yAxisID: 'y',
@@ -412,17 +470,19 @@ function reconstruirGraficas() {
                     callbacks: {
                         label: (ctx) => {
                             if (ctx.dataset.label === 'Acumulado %') {
-                                return `Acumulado: ${ctx.parsed.y}%`;
+                                return `${paretoFallas[ctx.dataIndex][0]} | Acumulado: ${ctx.parsed.y}%`;
                             }
-                            return `Cantidad: ${ctx.parsed.y}`;
+                            return `${paretoFallas[ctx.dataIndex][0]} | Incidencias: ${ctx.parsed.y}`;
                         },
                     },
                 },
+                legend: { labels: { font: { size: 11 } } },
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    title: { display: true, text: 'Cantidad' },
+                    title: { display: true, text: 'Incidencias' },
+                    ticks: { font: { size: 10 } },
                 },
                 y1: {
                     beginAtZero: true,
@@ -430,13 +490,15 @@ function reconstruirGraficas() {
                     position: 'right',
                     grid: { drawOnChartArea: false },
                     title: { display: true, text: 'Acumulado %' },
+                    ticks: { font: { size: 10 } },
                 },
+                x: { ticks: { maxRotation: 24, minRotation: 24, font: { size: 10 } } },
             },
             onClick: (_, elements) => {
                 if (!elements.length) return;
                 const index = elements[0].index;
                 const seleccion = paretoFallas[index][0];
-                estadoCruce.falla = estadoCruce.falla === seleccion ? null : seleccion;
+                activarFiltro('falla', seleccion);
                 reconstruirGraficas();
             },
         },

@@ -39,32 +39,40 @@
 <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); margin-top:14px;">
     <div class="card">
         <div class="chart-card-header">
-            <h2 class="chart-card-title">% de fallas por tipo</h2>
-            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="inicioDonutFallas" data-chart-title="% de fallas por tipo">Ver en grande</button>
+            <h2 class="chart-card-title">Distribución de fallas</h2>
+            <button type="button" class="btn btn-focus chart-expand-btn" data-chart-id="inicioDonutFallas" data-chart-title="Distribución de fallas">
+                <i class="bi bi-zoom-in"></i><span>Enfoque</span>
+            </button>
         </div>
         <canvas id="inicioDonutFallas" height="220"></canvas>
     </div>
 
     <div class="card">
         <div class="chart-card-header">
-            <h2 class="chart-card-title">% de fallas por agente</h2>
-            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="inicioBarAgentes" data-chart-title="% de fallas por agente">Ver en grande</button>
+            <h2 class="chart-card-title">Distribución por agente</h2>
+            <button type="button" class="btn btn-focus chart-expand-btn" data-chart-id="inicioBarAgentes" data-chart-title="Distribución por agente">
+                <i class="bi bi-zoom-in"></i><span>Enfoque</span>
+            </button>
         </div>
         <canvas id="inicioBarAgentes" height="220"></canvas>
     </div>
 
     <div class="card">
         <div class="chart-card-header">
-            <h2 class="chart-card-title">Fallas por día</h2>
-            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="inicioLineDia" data-chart-title="Fallas por día">Ver en grande</button>
+            <h2 class="chart-card-title">Tendencia diaria de incidencias</h2>
+            <button type="button" class="btn btn-focus chart-expand-btn" data-chart-id="inicioLineDia" data-chart-title="Tendencia diaria de incidencias">
+                <i class="bi bi-zoom-in"></i><span>Enfoque</span>
+            </button>
         </div>
         <canvas id="inicioLineDia" height="220"></canvas>
     </div>
 
     <div class="card">
         <div class="chart-card-header">
-            <h2 class="chart-card-title">Pareto de fallas (80/20)</h2>
-            <button type="button" class="btn btn-xs chart-expand-btn" data-chart-id="inicioPareto" data-chart-title="Pareto de fallas (80/20)">Ver en grande</button>
+            <h2 class="chart-card-title">Análisis Pareto de incidencias</h2>
+            <button type="button" class="btn btn-focus chart-expand-btn" data-chart-id="inicioPareto" data-chart-title="Análisis Pareto de incidencias">
+                <i class="bi bi-zoom-in"></i><span>Enfoque</span>
+            </button>
         </div>
         <canvas id="inicioPareto" height="220"></canvas>
     </div>
@@ -146,7 +154,26 @@ const chartRegistry = {};
 let modalChart = null;
 
 function cloneDeep(data) {
-    return structuredClone(data);
+    if (typeof structuredClone === 'function') {
+        return structuredClone(data);
+    }
+    if (Array.isArray(data)) {
+        return data.map(cloneDeep);
+    }
+    if (data && typeof data === 'object') {
+        const out = {};
+        for (const [key, value] of Object.entries(data)) {
+            out[key] = cloneDeep(value);
+        }
+        return out;
+    }
+    return data;
+}
+
+function shortLabel(texto, maxLen = 24) {
+    const txt = (texto || '').trim();
+    if (txt.length <= maxLen) return txt;
+    return txt.slice(0, maxLen - 1) + '…';
 }
 
 function contarPorClave(items, key) {
@@ -171,6 +198,8 @@ function buildCharts() {
     const fallas = mapToSortedEntries(contarPorClave(rawDiagnosticos, 'falla')).slice(0, 8);
     const agentes = mapToSortedEntries(contarPorClave(rawDiagnosticos, 'agente')).slice(0, 8);
     const dias = Object.entries(contarPorClave(rawDiagnosticos, 'fecha_dia')).sort((a, b) => a[0].localeCompare(b[0]));
+    const fallasLabelCorta = fallas.map((x) => shortLabel(x[0]));
+    const agentesLabelCorta = agentes.map((x) => shortLabel(x[0], 20));
 
     const totalFallas = fallas.reduce((acc, curr) => acc + curr[1], 0);
     const totalAgentes = agentes.reduce((acc, curr) => acc + curr[1], 0);
@@ -184,25 +213,50 @@ function buildCharts() {
     chartRegistry.inicioDonutFallas = {
         type: 'doughnut',
         data: {
-            labels: fallas.map((x) => x[0]),
+            labels: fallasLabelCorta,
             datasets: [{ data: fallas.map((x) => porcentaje(x[1], totalFallas)), backgroundColor: paleta }],
         },
         options: {
             responsive: true,
-            plugins: { legend: { position: 'bottom' } },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 10,
+                        boxHeight: 10,
+                        font: { size: 11 },
+                        padding: 12,
+                    },
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `${fallas[ctx.dataIndex][0]}: ${ctx.parsed}%`,
+                    },
+                },
+            },
         },
     };
 
     chartRegistry.inicioBarAgentes = {
         type: 'bar',
         data: {
-            labels: agentes.map((x) => x[0]),
-            datasets: [{ label: '% de fallas', data: agentes.map((x) => porcentaje(x[1], totalAgentes)), backgroundColor: cPrim }],
+            labels: agentesLabelCorta,
+            datasets: [{ label: '% incidencias', data: agentes.map((x) => porcentaje(x[1], totalAgentes)), backgroundColor: cPrim }],
         },
         options: {
             responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, max: 100 } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `${agentes[ctx.dataIndex][0]}: ${ctx.parsed.y}%`,
+                    },
+                },
+            },
+            scales: {
+                y: { beginAtZero: true, max: 100, ticks: { font: { size: 10 } } },
+                x: { ticks: { maxRotation: 0, font: { size: 10 } } },
+            },
         },
     };
 
@@ -210,26 +264,35 @@ function buildCharts() {
         type: 'line',
         data: {
             labels: dias.map((x) => x[0]),
-            datasets: [{ label: 'Cantidad', data: dias.map((x) => x[1]), borderColor: cAcento, backgroundColor: 'rgba(255,102,27,0.15)', fill: true, tension: 0.3 }],
+            datasets: [{ label: 'Incidencias', data: dias.map((x) => x[1]), borderColor: cAcento, backgroundColor: 'rgba(255,102,27,0.15)', fill: true, tension: 0.3 }],
         },
-        options: { responsive: true },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { font: { size: 11 } } } },
+            scales: {
+                y: { ticks: { font: { size: 10 } } },
+                x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 6, font: { size: 10 } } },
+            },
+        },
     };
 
     chartRegistry.inicioPareto = {
         type: 'bar',
         data: {
-            labels: fallas.map((x) => x[0]),
+            labels: fallas.map((x) => shortLabel(x[0], 16)),
             datasets: [
-                { type: 'bar', label: 'Cantidad', data: fallas.map((x) => x[1]), backgroundColor: cPrimCla, yAxisID: 'y' },
+                { type: 'bar', label: 'Incidencias', data: fallas.map((x) => x[1]), backgroundColor: cPrimCla, yAxisID: 'y' },
                 { type: 'line', label: 'Acumulado %', data: pareto, borderColor: cAcento, fill: false, tension: 0.25, yAxisID: 'y1' },
             ],
         },
         options: {
             responsive: true,
             scales: {
-                y: { beginAtZero: true, title: { display: true, text: 'Cantidad' } },
-                y1: { beginAtZero: true, max: 100, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Acumulado %' } },
+                y: { beginAtZero: true, title: { display: true, text: 'Incidencias' }, ticks: { font: { size: 10 } } },
+                y1: { beginAtZero: true, max: 100, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Acumulado %' }, ticks: { font: { size: 10 } } },
+                x: { ticks: { maxRotation: 24, minRotation: 24, font: { size: 10 } } },
             },
+            plugins: { legend: { labels: { font: { size: 11 } } } },
         },
     };
 
@@ -244,13 +307,13 @@ function buildCharts() {
 
 function openChartModal(chartId, title) {
     const modal = document.getElementById('chartModal');
+    document.getElementById('chartModalTitle').textContent = title || 'Gráfica';
     const modalCanvas = document.getElementById('chartModalCanvas');
     const chartConfig = chartRegistry[chartId];
 
     if (!chartConfig || !chartConfig.instance) return;
 
     modal.showModal();
-    modal.setAttribute('aria-hidden', 'false');
 
     if (modalChart) {
         modalChart.destroy();
@@ -281,6 +344,16 @@ document.querySelectorAll('.chart-expand-btn').forEach((btn) => {
 document.getElementById('chartModalClose').addEventListener('click', closeChartModal);
 
 buildCharts();
+
+document.getElementById('chartModal').addEventListener('click', (event) => {
+    const dialogDimensions = event.currentTarget.getBoundingClientRect();
+    const isClickOutside =
+        event.clientX < dialogDimensions.left ||
+        event.clientX > dialogDimensions.right ||
+        event.clientY < dialogDimensions.top ||
+        event.clientY > dialogDimensions.bottom;
+    if (isClickOutside) closeChartModal();
+});
 </script>
 
 {% endblock %}
