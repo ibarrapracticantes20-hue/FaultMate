@@ -110,11 +110,16 @@
     </div>
 
     <div class="card">
+        <h2 style="font-size:20px;margin-bottom:12px;">Pareto de fallas (80/20)</h2>
+        <canvas id="paretoFallas" height="220"></canvas>
+    </div>
+
+    <div class="card">
         <h2 style="font-size:20px;margin-bottom:12px;">Filtros activos</h2>
         <p id="filtrosActivos" class="texto-informativo">Sin filtros cruzados activos.</p>
         <button type="button" id="limpiarCruces" class="btn btn-filtro" style="margin-top:8px;">Limpiar filtros cruzados</button>
         <p style="margin-top:12px; color:#5b6470; font-weight:normal;">
-            Tip: haz clic en un segmento de la dona, una barra o un punto de la línea para filtrar el resto de gráficas.
+            Tip: haz clic en un segmento de la dona, una barra, un punto de la línea o una barra de Pareto para filtrar el resto de gráficas.
         </p>
     </div>
 </div>
@@ -169,6 +174,7 @@ const estadoCruce = {
 let chartDonut = null;
 let chartBar = null;
 let chartLine = null;
+let chartPareto = null;
 
 function contarPorClave(items, key) {
     const mapa = {};
@@ -212,17 +218,27 @@ function reconstruirGraficas() {
     const paraDonut = aplicarFiltroBase(rawDiagnosticos, 'falla');
     const paraBar = aplicarFiltroBase(rawDiagnosticos, 'agente');
     const paraLinea = aplicarFiltroBase(rawDiagnosticos, 'fecha_dia');
+    const paraPareto = aplicarFiltroBase(rawDiagnosticos, 'falla');
 
     const fallas = mapToSortedEntries(contarPorClave(paraDonut, 'falla')).slice(0, 8);
     const agentes = mapToSortedEntries(contarPorClave(paraBar, 'agente')).slice(0, 8);
     const dias = Object.entries(contarPorClave(paraLinea, 'fecha_dia')).sort((a, b) => a[0].localeCompare(b[0]));
+    const paretoFallas = mapToSortedEntries(contarPorClave(paraPareto, 'falla')).slice(0, 8);
 
     const totalFallas = fallas.reduce((acc, curr) => acc + curr[1], 0);
     const totalAgentes = agentes.reduce((acc, curr) => acc + curr[1], 0);
+    const totalPareto = paretoFallas.reduce((acc, curr) => acc + curr[1], 0);
+
+    let acumuladoPareto = 0;
+    const paretoAcumuladoPct = paretoFallas.map((item) => {
+        acumuladoPareto += item[1];
+        return porcentaje(acumuladoPareto, totalPareto);
+    });
 
     if (chartDonut) chartDonut.destroy();
     if (chartBar) chartBar.destroy();
     if (chartLine) chartLine.destroy();
+    if (chartPareto) chartPareto.destroy();
 
     chartDonut = new Chart(document.getElementById('donutFallas'), {
         type: 'doughnut',
@@ -310,6 +326,67 @@ function reconstruirGraficas() {
                 const index = elements[0].index;
                 const seleccion = dias[index][0];
                 estadoCruce.fecha_dia = estadoCruce.fecha_dia === seleccion ? null : seleccion;
+                reconstruirGraficas();
+            },
+        },
+    });
+
+    chartPareto = new Chart(document.getElementById('paretoFallas'), {
+        type: 'bar',
+        data: {
+            labels: paretoFallas.map((x) => x[0]),
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'Cantidad',
+                    data: paretoFallas.map((x) => x[1]),
+                    backgroundColor: cPrimCla,
+                    yAxisID: 'y',
+                },
+                {
+                    type: 'line',
+                    label: 'Acumulado %',
+                    data: paretoAcumuladoPct,
+                    borderColor: cAcento,
+                    backgroundColor: 'rgba(255,102,27,0.15)',
+                    tension: 0.25,
+                    fill: false,
+                    yAxisID: 'y1',
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => {
+                            if (ctx.dataset.label === 'Acumulado %') {
+                                return `Acumulado: ${ctx.parsed.y}%`;
+                            }
+                            return `Cantidad: ${ctx.parsed.y}`;
+                        },
+                    },
+                },
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Cantidad' },
+                },
+                y1: {
+                    beginAtZero: true,
+                    max: 100,
+                    position: 'right',
+                    grid: { drawOnChartArea: false },
+                    title: { display: true, text: 'Acumulado %' },
+                },
+            },
+            onClick: (_, elements) => {
+                if (!elements.length) return;
+                const index = elements[0].index;
+                const seleccion = paretoFallas[index][0];
+                estadoCruce.falla = estadoCruce.falla === seleccion ? null : seleccion;
                 reconstruirGraficas();
             },
         },
