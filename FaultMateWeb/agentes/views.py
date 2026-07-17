@@ -107,6 +107,22 @@ def _buscar_falla_conocida(mensaje):
     return Falla.objects.filter(nombre__icontains=texto).order_by('id').first()
 
 
+def _buscar_pregunta_conocida(mensaje):
+    texto = (mensaje or '').strip().lower()
+    if not texto:
+        return None
+
+    for pregunta in PreguntaDiagnostico.objects.select_related('falla').all().order_by('orden', 'id'):
+        pregunta_texto = (pregunta.pregunta or '').strip().lower()
+        if not pregunta_texto:
+            continue
+
+        if texto == pregunta_texto or texto in pregunta_texto or pregunta_texto in texto:
+            return pregunta
+
+    return None
+
+
 def _render_resultado_arbol(falla, respuestas):
     causas = []
     for respuesta in respuestas:
@@ -171,7 +187,11 @@ def _resolver_arbol_decision(request, agente, mensaje_usuario):
         respuesta = _normalizar_respuesta_binaria(mensaje_usuario)
         pregunta_actual = preguntas[indice]
         if not respuesta:
-            return f'Respóndeme solo con "sí" o "no" para continuar.\n\nPregunta: {pregunta_actual.pregunta}'
+            paso = indice + 1
+            return (
+                f'Para seguir el diagnóstico guiado, respóndeme solo con "sí" o "no".\n\n'
+                f'Paso {paso} de {len(preguntas)}: {pregunta_actual.pregunta}'
+            )
 
         respuestas = list(estado.get('respuestas', []))
         respuestas.append({'pregunta_id': pregunta_actual.id, 'respuesta': respuesta})
@@ -182,7 +202,12 @@ def _resolver_arbol_decision(request, agente, mensaje_usuario):
 
         if estado['indice'] < len(preguntas):
             siguiente = preguntas[estado['indice']]
-            return f'Entendido.\n\nSiguiente pregunta: {siguiente.pregunta}\n\nResponde con "sí" o "no".'
+            paso = estado['indice'] + 1
+            return (
+                f'Perfecto, continuemos paso a paso.\n\n'
+                f'Paso {paso} de {len(preguntas)}: {siguiente.pregunta}\n\n'
+                'Responde con "sí" o "no".'
+            )
 
         request.session.pop(session_key, None)
         request.session.modified = True
@@ -190,7 +215,33 @@ def _resolver_arbol_decision(request, agente, mensaje_usuario):
 
     falla = _buscar_falla_conocida(mensaje_usuario)
     if not falla:
-        return None
+        pregunta = _buscar_pregunta_conocida(mensaje_usuario)
+        if not pregunta:
+            return None
+
+        falla = pregunta.falla
+        preguntas = list(PreguntaDiagnostico.objects.filter(falla=falla).order_by('orden', 'id'))
+        if not preguntas:
+            return _render_resultado_arbol(falla, [])
+
+        indice_pregunta = 0
+        for index, item in enumerate(preguntas):
+            if item.id == pregunta.id:
+                indice_pregunta = index
+                break
+
+        request.session[session_key] = {
+            'falla_id': falla.id,
+            'indice': indice_pregunta,
+            'respuestas': [],
+        }
+        request.session.modified = True
+
+        return (
+            f'Reconocí una pregunta del checklist manual para "{falla.nombre}".\n\n'
+            f'Paso {indice_pregunta + 1} de {len(preguntas)}: {pregunta.pregunta}\n\n'
+            'Respóndeme con "sí" o "no" y te iré guiando con la siguiente revisión.'
+        )
 
     preguntas = list(PreguntaDiagnostico.objects.filter(falla=falla).order_by('orden', 'id'))
     if not preguntas:
@@ -205,9 +256,9 @@ def _resolver_arbol_decision(request, agente, mensaje_usuario):
 
     primera = preguntas[0]
     return (
-        f'Activé el árbol de decisión para la falla "{falla.nombre}".\n\n'
-        f'Pregunta 1: {primera.pregunta}\n\n'
-        'Responde con "sí" o "no".'
+        f'Activé el diagnóstico guiado para la falla "{falla.nombre}".\n\n'
+        f'Paso 1 de {len(preguntas)}: {primera.pregunta}\n\n'
+        'Primero revisa ese punto y luego respóndeme con "sí" o "no".'
     )
 
 

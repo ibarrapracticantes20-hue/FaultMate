@@ -3,13 +3,11 @@
 # (request) y devuelve una respuesta (normalmente un render con un template HTML).
 import unicodedata
 from datetime import datetime
-from datetime import timedelta
 from io import BytesIO
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
-from django.db.models.functions import TruncDate
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from openpyxl import Workbook
@@ -324,17 +322,20 @@ def dashboard(request):
 
     diagnosticos = diagnosticos_qs.order_by('-fecha')[:10]
 
-    # Donut: distribución de diagnósticos por agente.
-    diagnosticos_por_agente_qs = (
-        diagnosticos_qs
-        .values('agente')
-        .annotate(total=Count('id'))
-        .order_by('-total')[:8]
-    )
-    chart_donut_labels = [x['agente'] for x in diagnosticos_por_agente_qs]
-    chart_donut_values = [x['total'] for x in diagnosticos_por_agente_qs]
+    # Datos crudos para construir gráficas interactivas con filtros cruzados en frontend.
+    diagnosticos_data = []
+    for item in diagnosticos_qs.order_by('-fecha'):
+        diagnosticos_data.append(
+            {
+                'id': item.id,
+                'falla': item.falla,
+                'agente': item.agente,
+                'fecha_dia': item.fecha.strftime('%Y-%m-%d'),
+                'tiempo_diagnostico': item.tiempo_diagnostico,
+            }
+        )
 
-    # Barra: volumen de chats por agente.
+    # Métricas auxiliares para conservar contexto del módulo de agentes.
     chats_por_agente_qs = (
         chats_qs
         .filter(rol='user')
@@ -344,29 +345,6 @@ def dashboard(request):
     )
     chart_bar_labels = [x['agente__nombre'] for x in chats_por_agente_qs]
     chart_bar_values = [x['total'] for x in chats_por_agente_qs]
-
-    # Línea: actividad de preguntas en últimos 7 días.
-    desde = diagnosticos_qs.order_by('-fecha').first()
-    if desde:
-        limite = desde.fecha - timedelta(days=6)
-    else:
-        limite = None
-
-    preguntas_por_dia_qs = (
-        chats_qs
-        .filter(rol='user')
-        .annotate(fecha_dia=TruncDate('creado_en'))
-        .values('fecha_dia')
-        .annotate(total=Count('id'))
-        .order_by('fecha_dia')
-    )
-    if limite:
-        preguntas_por_dia_qs = [x for x in preguntas_por_dia_qs if x['fecha_dia'] >= limite.date()]
-    else:
-        preguntas_por_dia_qs = list(preguntas_por_dia_qs)
-
-    chart_line_labels = [str(x['fecha_dia']) for x in preguntas_por_dia_qs]
-    chart_line_values = [x['total'] for x in preguntas_por_dia_qs]
 
     eventos_resumen = eventos_qs.values('accion').annotate(total=Count('id')).order_by('accion')
     eventos_labels = [x['accion'] for x in eventos_resumen]
@@ -386,12 +364,9 @@ def dashboard(request):
         'agentes_eliminados': agentes_eliminados,
         'usabilidad': usabilidad,
         'diagnosticos': diagnosticos,
-        'chart_donut_labels': chart_donut_labels,
-        'chart_donut_values': chart_donut_values,
+        'chart_raw_diagnosticos': diagnosticos_data,
         'chart_bar_labels': chart_bar_labels,
         'chart_bar_values': chart_bar_values,
-        'chart_line_labels': chart_line_labels,
-        'chart_line_values': chart_line_values,
         'eventos_labels': eventos_labels,
         'eventos_values': eventos_values,
         'roles_filtro': roles_filtro,

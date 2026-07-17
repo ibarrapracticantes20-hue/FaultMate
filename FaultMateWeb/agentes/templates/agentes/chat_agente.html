@@ -11,8 +11,8 @@
     <p><b>Descripción:</b> {{ agente.descripcion }}</p>
     <p><b>Temperatura:</b> {{ agente.temperatura }} | <b>Tokens:</b> {{ agente.tokens }}</p>
     <p style="margin-top:10px; color:#5b6470; font-weight:normal;">
-        Si escribes una falla conocida, el sistema activa un árbol de decisión con respuestas de tipo "sí" o "no".
-        Si la falla no existe en el árbol, se usa IA como respaldo.
+        Este chat te guía paso a paso: primero revisa un punto, después el siguiente, respondiendo con "sí" o "no"
+        en las preguntas del checklist manual. Si preguntas algo fuera de ese checklist, se usa IA como respaldo.
     </p>
 
     <form method="POST" action="{% url 'limpiar_chat_agente' agente.id %}" style="margin-top:10px;">

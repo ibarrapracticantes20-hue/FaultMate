@@ -95,23 +95,27 @@
 
 <div class="cards" style="grid-template-columns:repeat(auto-fit, minmax(320px,1fr));">
     <div class="card">
-        <h2 style="font-size:20px;margin-bottom:12px;">Diagnósticos por agente</h2>
-        <canvas id="donutDiagnosticos" height="220"></canvas>
+        <h2 style="font-size:20px;margin-bottom:12px;">% de fallas por tipo</h2>
+        <canvas id="donutFallas" height="220"></canvas>
     </div>
 
     <div class="card">
-        <h2 style="font-size:20px;margin-bottom:12px;">Preguntas por agente (chat)</h2>
-        <canvas id="barChats" height="220"></canvas>
+        <h2 style="font-size:20px;margin-bottom:12px;">% de fallas por agente</h2>
+        <canvas id="barAgentes" height="220"></canvas>
     </div>
 
     <div class="card">
-        <h2 style="font-size:20px;margin-bottom:12px;">Preguntas por día</h2>
-        <canvas id="linePreguntas" height="220"></canvas>
+        <h2 style="font-size:20px;margin-bottom:12px;">Fallas por día</h2>
+        <canvas id="lineFallasDia" height="220"></canvas>
     </div>
 
     <div class="card">
-        <h2 style="font-size:20px;margin-bottom:12px;">Eventos de agentes</h2>
-        <canvas id="barEventos" height="220"></canvas>
+        <h2 style="font-size:20px;margin-bottom:12px;">Filtros activos</h2>
+        <p id="filtrosActivos" class="texto-informativo">Sin filtros cruzados activos.</p>
+        <button type="button" id="limpiarCruces" class="btn btn-filtro" style="margin-top:8px;">Limpiar filtros cruzados</button>
+        <p style="margin-top:12px; color:#5b6470; font-weight:normal;">
+            Tip: haz clic en un segmento de la dona, una barra o un punto de la línea para filtrar el resto de gráficas.
+        </p>
     </div>
 </div>
 
@@ -143,14 +147,7 @@
     {% endif %}
 </div>
 
-{{ chart_donut_labels|json_script:"chart-donut-labels" }}
-{{ chart_donut_values|json_script:"chart-donut-values" }}
-{{ chart_bar_labels|json_script:"chart-bar-labels" }}
-{{ chart_bar_values|json_script:"chart-bar-values" }}
-{{ chart_line_labels|json_script:"chart-line-labels" }}
-{{ chart_line_values|json_script:"chart-line-values" }}
-{{ eventos_labels|json_script:"chart-eventos-labels" }}
-{{ eventos_values|json_script:"chart-eventos-values" }}
+{{ chart_raw_diagnosticos|json_script:"chart-raw-diagnosticos" }}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -159,68 +156,174 @@ const cPrimOsc = '#0032a0';
 const cPrimCla = '#98dae9';
 const cAcento = '#ff661b';
 const cOsc = '#231f20';
+const paleta = [cPrim, cPrimOsc, cPrimCla, cAcento, cOsc, '#22c55e', '#ef4444', '#bdc6c3'];
 
-const donutLabels = JSON.parse(document.getElementById('chart-donut-labels').textContent);
-const donutValues = JSON.parse(document.getElementById('chart-donut-values').textContent);
-const barLabels = JSON.parse(document.getElementById('chart-bar-labels').textContent);
-const barValues = JSON.parse(document.getElementById('chart-bar-values').textContent);
-const lineLabels = JSON.parse(document.getElementById('chart-line-labels').textContent);
-const lineValues = JSON.parse(document.getElementById('chart-line-values').textContent);
-const eventosLabels = JSON.parse(document.getElementById('chart-eventos-labels').textContent);
-const eventosValues = JSON.parse(document.getElementById('chart-eventos-values').textContent);
+const rawDiagnosticos = JSON.parse(document.getElementById('chart-raw-diagnosticos').textContent);
 
-new Chart(document.getElementById('donutDiagnosticos'), {
-    type: 'doughnut',
-    data: {
-        labels: donutLabels,
-        datasets: [{
-            data: donutValues,
-            backgroundColor: [cPrim, cPrimOsc, cPrimCla, cAcento, cOsc, '#22c55e', '#ef4444', '#bdc6c3']
-        }]
+const estadoCruce = {
+    falla: null,
+    agente: null,
+    fecha_dia: null,
+};
+
+let chartDonut = null;
+let chartBar = null;
+let chartLine = null;
+
+function contarPorClave(items, key) {
+    const mapa = {};
+    for (const item of items) {
+        const valor = item[key] || 'Sin dato';
+        mapa[valor] = (mapa[valor] || 0) + 1;
     }
+    return mapa;
+}
+
+function mapToSortedEntries(mapa) {
+    return Object.entries(mapa).sort((a, b) => b[1] - a[1]);
+}
+
+function porcentaje(valor, total) {
+    if (!total) return 0;
+    return Number(((valor / total) * 100).toFixed(1));
+}
+
+function aplicarFiltroBase(items, excluirClave = null) {
+    return items.filter((item) => {
+        if (estadoCruce.falla && excluirClave !== 'falla' && item.falla !== estadoCruce.falla) return false;
+        if (estadoCruce.agente && excluirClave !== 'agente' && item.agente !== estadoCruce.agente) return false;
+        if (estadoCruce.fecha_dia && excluirClave !== 'fecha_dia' && item.fecha_dia !== estadoCruce.fecha_dia) return false;
+        return true;
+    });
+}
+
+function textoFiltrosActivos() {
+    const activos = [];
+    if (estadoCruce.falla) activos.push(`Falla: ${estadoCruce.falla}`);
+    if (estadoCruce.agente) activos.push(`Agente: ${estadoCruce.agente}`);
+    if (estadoCruce.fecha_dia) activos.push(`Fecha: ${estadoCruce.fecha_dia}`);
+    return activos.length ? activos.join(' | ') : 'Sin filtros cruzados activos.';
+}
+
+function reconstruirGraficas() {
+    const filtroTexto = document.getElementById('filtrosActivos');
+    filtroTexto.textContent = textoFiltrosActivos();
+
+    const paraDonut = aplicarFiltroBase(rawDiagnosticos, 'falla');
+    const paraBar = aplicarFiltroBase(rawDiagnosticos, 'agente');
+    const paraLinea = aplicarFiltroBase(rawDiagnosticos, 'fecha_dia');
+
+    const fallas = mapToSortedEntries(contarPorClave(paraDonut, 'falla')).slice(0, 8);
+    const agentes = mapToSortedEntries(contarPorClave(paraBar, 'agente')).slice(0, 8);
+    const dias = Object.entries(contarPorClave(paraLinea, 'fecha_dia')).sort((a, b) => a[0].localeCompare(b[0]));
+
+    const totalFallas = fallas.reduce((acc, curr) => acc + curr[1], 0);
+    const totalAgentes = agentes.reduce((acc, curr) => acc + curr[1], 0);
+
+    if (chartDonut) chartDonut.destroy();
+    if (chartBar) chartBar.destroy();
+    if (chartLine) chartLine.destroy();
+
+    chartDonut = new Chart(document.getElementById('donutFallas'), {
+        type: 'doughnut',
+        data: {
+            labels: fallas.map((x) => x[0]),
+            datasets: [{
+                data: fallas.map((x) => porcentaje(x[1], totalFallas)),
+                backgroundColor: paleta,
+                borderWidth: 1,
+            }],
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `${ctx.label}: ${ctx.parsed}%`,
+                    },
+                },
+            },
+            onClick: (_, elements) => {
+                if (!elements.length) return;
+                const index = elements[0].index;
+                const seleccion = fallas[index][0];
+                estadoCruce.falla = estadoCruce.falla === seleccion ? null : seleccion;
+                reconstruirGraficas();
+            },
+        },
+    });
+
+    chartBar = new Chart(document.getElementById('barAgentes'), {
+        type: 'bar',
+        data: {
+            labels: agentes.map((x) => x[0]),
+            datasets: [{
+                label: '% de fallas',
+                data: agentes.map((x) => porcentaje(x[1], totalAgentes)),
+                backgroundColor: cPrim,
+            }],
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `${ctx.parsed.y}%`,
+                    },
+                },
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                },
+            },
+            onClick: (_, elements) => {
+                if (!elements.length) return;
+                const index = elements[0].index;
+                const seleccion = agentes[index][0];
+                estadoCruce.agente = estadoCruce.agente === seleccion ? null : seleccion;
+                reconstruirGraficas();
+            },
+        },
+    });
+
+    chartLine = new Chart(document.getElementById('lineFallasDia'), {
+        type: 'line',
+        data: {
+            labels: dias.map((x) => x[0]),
+            datasets: [{
+                label: 'Cantidad de fallas',
+                data: dias.map((x) => x[1]),
+                borderColor: cAcento,
+                backgroundColor: 'rgba(255,102,27,0.15)',
+                fill: true,
+                tension: 0.3,
+            }],
+        },
+        options: {
+            responsive: true,
+            onClick: (_, elements) => {
+                if (!elements.length) return;
+                const index = elements[0].index;
+                const seleccion = dias[index][0];
+                estadoCruce.fecha_dia = estadoCruce.fecha_dia === seleccion ? null : seleccion;
+                reconstruirGraficas();
+            },
+        },
+    });
+}
+
+document.getElementById('limpiarCruces').addEventListener('click', () => {
+    estadoCruce.falla = null;
+    estadoCruce.agente = null;
+    estadoCruce.fecha_dia = null;
+    reconstruirGraficas();
 });
 
-new Chart(document.getElementById('barChats'), {
-    type: 'bar',
-    data: {
-        labels: barLabels,
-        datasets: [{
-            label: 'Preguntas',
-            data: barValues,
-            backgroundColor: cPrim
-        }]
-    },
-    options: {responsive: true, plugins: {legend: {display: false}}}
-});
-
-new Chart(document.getElementById('linePreguntas'), {
-    type: 'line',
-    data: {
-        labels: lineLabels,
-        datasets: [{
-            label: 'Preguntas por día',
-            data: lineValues,
-            borderColor: cAcento,
-            backgroundColor: 'rgba(255,102,27,0.15)',
-            fill: true,
-            tension: 0.3
-        }]
-    },
-    options: {responsive: true}
-});
-
-new Chart(document.getElementById('barEventos'), {
-    type: 'bar',
-    data: {
-        labels: eventosLabels,
-        datasets: [{
-            label: 'Eventos',
-            data: eventosValues,
-            backgroundColor: [cPrim, cPrimOsc, cPrimCla, cAcento, cOsc, '#22c55e']
-        }]
-    },
-    options: {responsive: true}
-});
+reconstruirGraficas();
 </script>
 
 {% endblock %}
