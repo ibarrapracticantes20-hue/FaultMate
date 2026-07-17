@@ -45,12 +45,29 @@ jobs:
           zip -r ../release.zip . -x '*.git*' '*__pycache__*' '*.pyc' '.venv/*' 'venv/*' '.env'
 
       - name: Azure Login
+        if: ${{ secrets.AZURE_CREDENTIALS != '' }}
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Validate deployment secrets
+        run: |
+          if [ -z "${{ secrets.AZURE_CREDENTIALS }}" ] && [ -z "${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" ]; then
+            echo "Falta configurar AZURE_CREDENTIALS o AZURE_WEBAPP_PUBLISH_PROFILE en GitHub Secrets."
+            exit 1
+          fi
+
       - name: Deploy to Azure Web App
+        if: ${{ secrets.AZURE_CREDENTIALS != '' }}
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          package: release.zip
+
+      - name: Deploy to Azure Web App (Publish Profile)
+        if: ${{ secrets.AZURE_CREDENTIALS == '' && secrets.AZURE_WEBAPP_PUBLISH_PROFILE != '' }}
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: release.zip
