@@ -312,6 +312,20 @@ tr:hover td {
     margin-bottom: 15px;
 }
 
+.login-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0f4f8c;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.login-back-link:hover {
+    color: #0032a0;
+    text-decoration: underline;
+}
+
 .brand-logo-login-wrap {
     margin-bottom: 10px;
 }
@@ -461,6 +475,11 @@ tr:hover td {
     padding: 30px;
 }
 
+.landing-hero-card {
+    display: flex;
+    flex-direction: column;
+}
+
 .landing-kicker {
     display: inline-flex;
     align-items: center;
@@ -604,6 +623,16 @@ tr:hover td {
     color: #16406f;
     font-size: 12px;
     font-weight: 700;
+}
+
+.landing-business-image {
+    width: 100%;
+    border-radius: 16px;
+    border: 1px solid rgba(189, 235, 255, 0.45);
+    box-shadow: 0 12px 26px rgba(0, 32, 90, 0.24);
+    margin-top: 16px;
+    margin-top: auto;
+    object-fit: cover;
 }
 
 .landing-capabilities {

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A2A5E"/>
+      <stop offset="0.6" stop-color="#164A95"/>
+      <stop offset="1" stop-color="#1491C9"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(630 380) rotate(22) scale(420 260)">
+      <stop stop-color="#4DD8FF" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#4DD8FF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hex" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#26C4EE"/>
+      <stop offset="1" stop-color="#0F78B9"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect width="1280" height="720" fill="url(#glow)"/>
+
+  <g opacity="0.22" stroke="#D9F5FF" stroke-width="2">
+    <polygon points="180,120 255,120 292,185 255,250 180,250 143,185"/>
+    <polygon points="350,80 425,80 462,145 425,210 350,210 313,145"/>
+    <polygon points="520,120 595,120 632,185 595,250 520,250 483,185"/>
+    <polygon points="975,90 1050,90 1087,155 1050,220 975,220 938,155"/>
+    <polygon points="1105,200 1180,200 1217,265 1180,330 1105,330 1068,265"/>
+  </g>
+
+  <g stroke="#BDEBFF" stroke-opacity="0.55" stroke-width="2">
+    <line x1="218" y1="185" x2="387" y2="145"/>
+    <line x1="387" y1="145" x2="557" y2="185"/>
+    <line x1="557" y1="185" x2="1012" y2="155"/>
+    <line x1="1012" y1="155" x2="1142" y2="265"/>
+  </g>
+
+  <g>
+    <polygon points="505,258 770,258 902,486 770,714 505,714 373,486" fill="url(#hex)" stroke="#DDF7FF" stroke-width="6"/>
+    <text x="640" y="450" text-anchor="middle" fill="#F4FEFF" font-family="Manrope, Arial, sans-serif" font-size="118" font-weight="800" letter-spacing="4">LEAN</text>
+  </g>
+
+  <g fill="#E8F8FF" opacity="0.9" font-family="Manrope, Arial, sans-serif">
+    <text x="126" y="352" font-size="40" font-weight="700">Data</text>
+    <text x="1070" y="420" font-size="40" font-weight="700">Ops</text>
+    <text x="990" y="590" font-size="36" font-weight="700">Automation</text>
+    <text x="160" y="560" font-size="36" font-weight="700">Industrial AI</text>
+  </g>
+
+  <g fill="#34D2FF" opacity="0.9">
+    <circle cx="218" cy="185" r="9"/>
+    <circle cx="387" cy="145" r="9"/>
+    <circle cx="557" cy="185" r="9"/>
+    <circle cx="1012" cy="155" r="9"/>
+    <circle cx="1142" cy="265" r="9"/>
+  </g>
+</svg>

@@ -192,6 +192,75 @@ Flujo recomendado:
 3. Ejecutar migraciones en entorno de despliegue.
 4. Validar login, dashboard y estaticos.
 
+### Despliegue manual actual (Azure Container Apps)
+
+Actualmente el despliegue que se usa en este proyecto es manual a Azure Container Apps.
+El workflow de GitHub Actions de Container Apps existe, pero si faltan secretos OIDC no termina el deploy.
+
+#### Requisitos previos
+
+1. Azure CLI instalado (`az --version`).
+2. Sesion iniciada en Azure (`az login`).
+3. Permisos sobre el grupo de recursos y la Container App.
+4. Repo actualizado en rama `main` con los cambios que quieres publicar.
+
+#### Valores usados en este entorno
+
+- Subscription: `Azure subscription 1`
+- Resource Group: `rg-faultmate-dev-scus`
+- Container App: `ca-faultmate-web-scus`
+
+#### Paso a paso (comandos)
+
+1. Ir al repo local:
+
+```powershell
+cd "c:\Users\SantiagoSegura\OneDrive - PROCETI\Documentos\Github\FaultMate"
+```
+
+2. Validar sesión y suscripción:
+
+```powershell
+az account show -o table
+az account set --subscription "Azure subscription 1"
+```
+
+3. Obtener el SHA corto del commit a publicar:
+
+```powershell
+$sha = git rev-parse --short HEAD
+```
+
+4. Forzar nueva revisión de Container App:
+
+```powershell
+az containerapp update -n ca-faultmate-web-scus -g rg-faultmate-dev-scus --set-env-vars DEPLOY_SHA=$sha --output table
+```
+
+5. Verificar estado de revisión:
+
+```powershell
+az containerapp show -n ca-faultmate-web-scus -g rg-faultmate-dev-scus --query "{latestReady:properties.latestReadyRevisionName,latestRevision:properties.latestRevisionName,runningStatus:properties.runningStatus}" -o table
+az containerapp revision list -n ca-faultmate-web-scus -g rg-faultmate-dev-scus --query "[].{name:name,health:properties.healthState,state:properties.runningState,active:properties.active}" -o table
+```
+
+6. Si la nueva revisión sigue en `Activating`, revisar logs:
+
+```powershell
+az containerapp logs show -n ca-faultmate-web-scus -g rg-faultmate-dev-scus --revision <NOMBRE_REVISION> --follow false --tail 120
+```
+
+7. Probar sitio publicado:
+
+```powershell
+Invoke-WebRequest -Uri "https://ca-faultmate-web-scus.happyriver-ea030381.southcentralus.azurecontainerapps.io/" -UseBasicParsing
+```
+
+#### Nota importante de operación
+
+- Esta Container App recompone entorno en arranque (instala paquetes y clona repo), por eso algunas revisiones tardan varios minutos en pasar a `Healthy`.
+- No dar por fallido el deploy hasta revisar `latestReady` y logs.
+
 ## Problemas comunes
 
 ### 1) "No se ven estilos CSS"
