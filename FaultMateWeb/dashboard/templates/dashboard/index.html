@@ -6,31 +6,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FaultMate</title>
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
 </head>
-<body>
+<body class="landing-body">
 
-<!-- Página pública de bienvenida (todavía no se ha iniciado sesión) -->
-<header class="inicio-header">
-    <div class="brand-logo-wrap brand-logo-home-wrap">
-        <img src="{% static 'img/iot-technologies-logo.svg' %}" alt="IOT Technologies" class="brand-logo-home">
+<header class="landing-topbar">
+    <div class="landing-topbar-brand">
+        <img src="{% static 'img/iot-technologies-logo.svg' %}" alt="IOT Technologies" class="landing-topbar-logo">
+        <span>FaultMate Industrial Intelligence</span>
     </div>
-    <h1>FaultMate</h1>
-    <p>Sistema Inteligente de Diagnóstico Industrial</p>
+    <a href="/login/" class="landing-login-btn">Iniciar sesión</a>
 </header>
 
-<!--
-    Antes esta página repetía aquí el menú completo (Dashboard, Diagnosticar,
-    Agentes IA, Usuarios), igual que la barra lateral que se ve después
-    de iniciar sesión. Eso hacía que el flujo se sintiera repetido: se
-    veía el mismo menú dos veces (uno en el inicio y otro en el sidebar).
-    Como esas páginas ahora requieren haber iniciado sesión, aquí solo
-    dejamos una única acción clara: iniciar sesión.
--->
-<nav class="inicio-menu">
-    <a href="/login/">Iniciar sesión</a>
-</nav>
+<main class="landing-main">
+    <section class="landing-hero">
+        <div class="landing-hero-copy">
+            <p class="landing-kicker">Diagnóstico Industrial de Nueva Generación</p>
+            <h1>Decisiones más rápidas para una planta más estable.</h1>
+            <p class="landing-subtitle">
+                FaultMate centraliza tus fallas, guía diagnósticos paso a paso y te da trazabilidad con
+                analítica visual para reducir tiempos muertos y elevar la confiabilidad operativa.
+            </p>
+            <div class="landing-cta-row">
+                <a href="/login/" class="landing-cta-primary">Entrar al sistema</a>
+                <a href="#capacidades" class="landing-cta-secondary">Ver capacidades</a>
+            </div>
+            <ul class="landing-mini-metrics">
+                <li><strong>Diagnóstico guiado</strong><span>Flujo Sí/No más IA cuando aplica</span></li>
+                <li><strong>Dashboard interactivo</strong><span>Filtros cruzados y Pareto de fallas</span></li>
+                <li><strong>Historial técnico</strong><span>Trazabilidad por agente y por evento</span></li>
+            </ul>
+        </div>
+        <div class="landing-hero-card">
+            <h2>Vista Operativa</h2>
+            <p>Monitorea fallas críticas y tendencias en una sola pantalla.</p>
+            <div class="landing-chart-mock">
+                <span style="height:38%"></span>
+                <span style="height:62%"></span>
+                <span style="height:48%"></span>
+                <span style="height:82%"></span>
+                <span style="height:58%"></span>
+                <span style="height:74%"></span>
+            </div>
+            <div class="landing-chip-grid">
+                <span>Fallas por tipo</span>
+                <span>Pareto 80/20</span>
+                <span>Actividad diaria</span>
+                <span>Uso de agentes</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="capacidades" class="landing-capabilities">
+        <article class="landing-cap-card">
+            <h3>Diagnóstico Guiado</h3>
+            <p>
+                El agente conduce al técnico con preguntas puntuales del checklist. Si sales del árbol,
+                continúa con soporte de IA para no romper el flujo.
+            </p>
+        </article>
+        <article class="landing-cap-card">
+            <h3>Analítica Ejecutiva</h3>
+            <p>
+                Visualiza distribución de fallas, comportamiento por agente y tendencias temporales con
+                filtros interactivos entre gráficas.
+            </p>
+        </article>
+        <article class="landing-cap-card">
+            <h3>Operación Escalable</h3>
+            <p>
+                Arquitectura desplegada en Azure Container Apps para evolucionar desde pilotos hasta
+                operaciones industriales más exigentes.
+            </p>
+        </article>
+    </section>
+</main>
+
+<footer class="landing-footer">
+    <p>FaultMate · Sistema Inteligente de Diagnóstico Industrial</p>
+</footer>
 
 </body>
 </html>

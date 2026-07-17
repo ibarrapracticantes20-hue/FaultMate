@@ -113,15 +113,6 @@
         <h2 style="font-size:20px;margin-bottom:12px;">Pareto de fallas (80/20)</h2>
         <canvas id="paretoFallas" height="220"></canvas>
     </div>
-
-    <div class="card">
-        <h2 style="font-size:20px;margin-bottom:12px;">Filtros activos</h2>
-        <p id="filtrosActivos" class="texto-informativo">Sin filtros cruzados activos.</p>
-        <button type="button" id="limpiarCruces" class="btn btn-filtro" style="margin-top:8px;">Limpiar filtros cruzados</button>
-        <p style="margin-top:12px; color:#5b6470; font-weight:normal;">
-            Tip: haz clic en un segmento de la dona, una barra, un punto de la línea o una barra de Pareto para filtrar el resto de gráficas.
-        </p>
-    </div>
 </div>
 
 <div class="card">
@@ -203,18 +194,7 @@ function aplicarFiltroBase(items, excluirClave = null) {
     });
 }
 
-function textoFiltrosActivos() {
-    const activos = [];
-    if (estadoCruce.falla) activos.push(`Falla: ${estadoCruce.falla}`);
-    if (estadoCruce.agente) activos.push(`Agente: ${estadoCruce.agente}`);
-    if (estadoCruce.fecha_dia) activos.push(`Fecha: ${estadoCruce.fecha_dia}`);
-    return activos.length ? activos.join(' | ') : 'Sin filtros cruzados activos.';
-}
-
 function reconstruirGraficas() {
-    const filtroTexto = document.getElementById('filtrosActivos');
-    filtroTexto.textContent = textoFiltrosActivos();
-
     const paraDonut = aplicarFiltroBase(rawDiagnosticos, 'falla');
     const paraBar = aplicarFiltroBase(rawDiagnosticos, 'agente');
     const paraLinea = aplicarFiltroBase(rawDiagnosticos, 'fecha_dia');
@@ -392,13 +372,6 @@ function reconstruirGraficas() {
         },
     });
 }
-
-document.getElementById('limpiarCruces').addEventListener('click', () => {
-    estadoCruce.falla = null;
-    estadoCruce.agente = null;
-    estadoCruce.fecha_dia = null;
-    reconstruirGraficas();
-});
 
 reconstruirGraficas();
 </script>
