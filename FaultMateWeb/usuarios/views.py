@@ -5,8 +5,37 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 
 from faultmate.permissions import ROLE_DESARROLLADOR, role_required
-from .forms import UsuarioForm
+from .forms import UsuarioForm, RegistroPublicoForm
 from .models import Usuario
+
+
+def registro_publico(request):
+    """Registro público para crear cuenta con rol Visitante."""
+    exito = False
+    if request.method == 'POST':
+        form = RegistroPublicoForm(request.POST)
+        if form.is_valid():
+            correo = form.cleaned_data['correo']
+            if User.objects.filter(username=correo).exists() or Usuario.objects.filter(correo=correo).exists():
+                form.add_error('correo', 'Ya existe una cuenta con ese correo.')
+            else:
+                auth_user = User.objects.create_user(
+                    username=correo,
+                    email=correo,
+                    password=form.cleaned_data['password'],
+                )
+                Usuario.objects.create(
+                    nombre=form.cleaned_data['nombre'],
+                    correo=correo,
+                    rol=Usuario.ROLE_VISITANTE,
+                    auth_user=auth_user,
+                )
+                exito = True
+                form = RegistroPublicoForm()
+    else:
+        form = RegistroPublicoForm()
+
+    return render(request, 'usuarios/registro.html', {'form': form, 'exito': exito})
 
 
 @login_required

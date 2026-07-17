@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - FaultMate</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+</head>
+<body>
+
+<div class="login-caja" style="width:420px;">
+
+    <div class="brand-logo-wrap brand-logo-login-wrap">
+        <img src="{% static 'img/iot-technologies-logo.svg' %}" alt="IOT Technologies" class="brand-logo-login">
+    </div>
+
+    <p>Registro de usuario en LeanDigital IA</p>
+
+    {% if exito %}
+    <p style="background:#dcfce7; color:#166534; padding:10px 12px; border-radius:8px; margin-bottom:12px;">
+        Cuenta creada correctamente. Ya puedes iniciar sesión.
+    </p>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+    <p class="mensaje-error">{{ form.non_field_errors|join:', ' }}</p>
+    {% endif %}
+
+    <form class="formulario" method="post">
+        {% csrf_token %}
+
+        <label for="id_nombre">Nombre</label>
+        {{ form.nombre }}
+        {% if form.nombre.errors %}<p class="mensaje-error">{{ form.nombre.errors|join:', ' }}</p>{% endif %}
+
+        <label for="id_correo">Correo</label>
+        {{ form.correo }}
+        {% if form.correo.errors %}<p class="mensaje-error">{{ form.correo.errors|join:', ' }}</p>{% endif %}
+
+        <label for="id_password">Contraseña</label>
+        {{ form.password }}
+        {% if form.password.errors %}<p class="mensaje-error">{{ form.password.errors|join:', ' }}</p>{% endif %}
+
+        <label for="id_password_confirm">Confirmar contraseña</label>
+        {{ form.password_confirm }}
+        {% if form.password_confirm.errors %}<p class="mensaje-error">{{ form.password_confirm.errors|join:', ' }}</p>{% endif %}
+
+        <button type="submit" class="btn" style="width:100%;">Registrarme</button>
+    </form>
+
+    <p style="margin-top:12px; text-align:center;">
+        <a href="{% url 'login' %}">Volver a iniciar sesión</a>
+    </p>
+
+</div>
+
+</body>
+</html>

@@ -4,6 +4,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # /usuarios/registro/ -> registro público de nuevos usuarios
+    path('registro/', views.registro_publico, name='registro_publico'),
+
     # /usuarios/  -> ver la lista de usuarios
     path('', views.lista_usuarios, name='usuarios'),
 

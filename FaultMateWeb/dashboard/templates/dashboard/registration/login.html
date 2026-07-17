@@ -16,7 +16,7 @@
     <div class="brand-logo-wrap brand-logo-login-wrap">
         <img src="{% static 'img/iot-technologies-logo.svg' %}" alt="IOT Technologies" class="brand-logo-login">
     </div>
-    <p>Sistema Inteligente de Diagnóstico Industrial</p>
+    <p>Ingresa al sistema de control LeanDigital IA</p>
 
     {% if error %}
     <p class="mensaje-error">{{ error }}</p>
@@ -40,6 +40,11 @@
         <button type="submit" class="btn" style="width:100%;">Ingresar</button>
 
     </form>
+
+    <p style="margin-top:12px; text-align:center;">
+        ¿No tienes cuenta?
+        <a href="{% url 'registro_publico' %}">Regístrate aquí</a>
+    </p>
 
 </div>
 
