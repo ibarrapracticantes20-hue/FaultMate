@@ -3,7 +3,7 @@
 {% block title %}Editar usuario - FaultMate{% endblock %}
 
 {% block titulo %}Editar usuario{% endblock %}
-{% block descripcion %}Actualiza la informacion de {{ usuario.nombre }}{% endblock %}
+{% block descripcion %}Actualiza la información de {{ usuario.nombre }}{% endblock %}
 
 {% block content %}
 
@@ -17,15 +17,15 @@
 
         {% csrf_token %}
 
-        <label>Nombre</label>
+        <label for="id_nombre">Nombre</label>
         {{ form.nombre }}
         {% if form.nombre.errors %}<p class="mensaje-error">{{ form.nombre.errors|join:', ' }}</p>{% endif %}
 
-        <label>Correo (se usa para iniciar sesion)</label>
+        <label for="id_correo">Correo (se usa para iniciar sesión)</label>
         {{ form.correo }}
         {% if form.correo.errors %}<p class="mensaje-error">{{ form.correo.errors|join:', ' }}</p>{% endif %}
 
-        <label>Rol</label>
+        <label for="id_rol">Rol</label>
         {{ form.rol }}
         {% if form.rol.errors %}<p class="mensaje-error">{{ form.rol.errors|join:', ' }}</p>{% endif %}
 

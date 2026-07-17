@@ -3,13 +3,17 @@
 {% block title %}Chat {{ agente.nombre }} - FaultMate{% endblock %}
 
 {% block titulo %}Chat especializado: {{ agente.nombre }}{% endblock %}
-{% block descripcion %}Conversacion persistente para diagnostico tecnico{% endblock %}
+{% block descripcion %}Conversación persistente para diagnóstico técnico{% endblock %}
 
 {% block content %}
 
 <div class="card" style="margin-bottom:20px;">
-    <p><b>Descripcion:</b> {{ agente.descripcion }}</p>
+    <p><b>Descripción:</b> {{ agente.descripcion }}</p>
     <p><b>Temperatura:</b> {{ agente.temperatura }} | <b>Tokens:</b> {{ agente.tokens }}</p>
+    <p style="margin-top:10px; color:#5b6470; font-weight:normal;">
+        Si escribes una falla conocida, el sistema activa un árbol de decisión con respuestas de tipo "sí" o "no".
+        Si la falla no existe en el árbol, se usa IA como respaldo.
+    </p>
 
     <form method="POST" action="{% url 'limpiar_chat_agente' agente.id %}" style="margin-top:10px;">
         {% csrf_token %}
@@ -26,15 +30,15 @@
             </div>
         {% endfor %}
     {% else %}
-        <p class="mensaje-vacio">Todavia no hay mensajes en este chat.</p>
+        <p class="mensaje-vacio">Todavía no hay mensajes en este chat.</p>
     {% endif %}
 </div>
 
 <div class="card">
     <form method="POST" class="formulario">
         {% csrf_token %}
-        <label>Tu mensaje</label>
-        <textarea name="mensaje" rows="4" placeholder="Escribe tu pregunta tecnica para este agente" required></textarea>
+        <label for="mensaje">Tu mensaje</label>
+        <textarea id="mensaje" name="mensaje" rows="4" placeholder="Escribe tu pregunta técnica para este agente" required></textarea>
         <button type="submit" class="btn">Enviar</button>
     </form>
 </div>

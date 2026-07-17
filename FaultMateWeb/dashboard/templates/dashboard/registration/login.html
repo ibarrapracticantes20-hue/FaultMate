@@ -13,8 +13,10 @@
 
 <div class="login-caja">
 
-    <h2>FaultMate</h2>
-    <p>Sistema Inteligente de Diagnostico Industrial</p>
+    <div class="brand-logo-wrap brand-logo-login-wrap">
+        <img src="{% static 'img/iot-technologies-logo.svg' %}" alt="IOT Technologies" class="brand-logo-login">
+    </div>
+    <p>Sistema Inteligente de Diagnóstico Industrial</p>
 
     {% if error %}
     <p class="mensaje-error">{{ error }}</p>
@@ -23,17 +25,17 @@
     <!--
         Usuario de prueba (se crea solo al correr "migrate"):
         usuario: test
-        contrasena: test123
+        contraseña: test123
     -->
     <form class="formulario" action="{% url 'login' %}" method="post">
 
         {% csrf_token %}
 
-        <label>Usuario</label>
-        <input type="text" name="usuario" placeholder="Escribe tu usuario" required>
+        <label for="usuario">Usuario</label>
+        <input id="usuario" type="text" name="usuario" placeholder="Escribe tu usuario" required>
 
-        <label>Contrasena</label>
-        <input type="password" name="password" placeholder="Escribe tu contrasena" required>
+        <label for="password">Contraseña</label>
+        <input id="password" type="password" name="password" placeholder="Escribe tu contraseña" required>
 
         <button type="submit" class="btn" style="width:100%;">Ingresar</button>
 

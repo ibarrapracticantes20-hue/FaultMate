@@ -1,9 +1,9 @@
 {% extends "dashboard/base.html" %}
 
-{% block title %}Detalle de diagnostico - FaultMate{% endblock %}
+{% block title %}Detalle de diagnóstico - FaultMate{% endblock %}
 
-{% block titulo %}Detalle del diagnostico{% endblock %}
-{% block descripcion %}Aqui puedes leer la informacion completa del diagnostico{% endblock %}
+{% block titulo %}Detalle del diagnóstico{% endblock %}
+{% block descripcion %}Aquí puedes leer la información completa del diagnóstico{% endblock %}
 
 {% block content %}
 
@@ -11,7 +11,7 @@
     <h2>Falla</h2>
     <p>{{ diagnostico.falla }}</p>
 
-    <h2>Diagnostico completo</h2>
+    <h2>Diagnóstico completo</h2>
     <div class="resultado-ia detalle-diagnostico">{{ diagnostico.diagnostico|linebreaksbr }}</div>
 
     <p><b>Agente:</b> {{ diagnostico.agente }}</p>

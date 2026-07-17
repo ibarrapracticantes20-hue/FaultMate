@@ -2,8 +2,8 @@
 
 {% block title %}Diagnosticar - FaultMate{% endblock %}
 
-{% block titulo %}Diagnostico de fallas{% endblock %}
-{% block descripcion %}Escribe la falla que observas y el sistema buscara un diagnostico{% endblock %}
+{% block titulo %}Diagnóstico de fallas{% endblock %}
+{% block descripcion %}Escribe la falla que observas y el sistema buscará un diagnóstico{% endblock %}
 
 {% block content %}
 
@@ -13,8 +13,9 @@
 
         {% csrf_token %}
 
-        <label>Descripcion de la falla</label>
+          <label for="falla">Descripción de la falla</label>
         <input
+              id="falla"
            type="text"
            name="falla"
            placeholder="Ej. El motor no arranca"
@@ -30,7 +31,7 @@
     Logica de la pagina (ver dashboard/views.py -> diagnosticar):
     1. Si la falla ya estaba guardada en la base de datos, se muestra "resultado".
     2. Si es una falla nueva, se muestra la respuesta generada por la IA (respuesta_gemini).
-    3. Si no se encontro nada, se avisa al usuario.
+    3. Si no se encontró nada, se avisa al usuario.
     Antes esta plantilla tenia un error de escritura (revisaba una variable
     llamada "respuest_gemini" que nunca existia) y por eso a veces se
     mostraban dos mensajes contradictorios al mismo tiempo.
@@ -38,22 +39,22 @@
 {% if diagnostico_mostrado %}
 
 <div class="resultado-ia">
-    <h2>Diagnostico encontrado</h2>
+    <h2>Diagnóstico encontrado</h2>
     <p><b>Falla:</b> {{ diagnostico_mostrado.falla }}</p>
-    <p><b>Diagnostico:</b> {{ diagnostico_mostrado.diagnostico|truncatechars:220 }}</p>
-    <p><a href="{% url 'diagnostico_detalle' diagnostico_mostrado.id %}">Ver mas</a></p>
+    <p><b>Diagnóstico:</b> {{ diagnostico_mostrado.diagnostico|truncatechars:220 }}</p>
+    <p><a href="{% url 'diagnostico_detalle' diagnostico_mostrado.id %}">Ver más</a></p>
     <p><b>Agente:</b> {{ diagnostico_mostrado.agente }}</p>
     <p><b>Tiempo:</b> {{ diagnostico_mostrado.tiempo_diagnostico }} min</p>
 </div>
 
 {% elif buscado %}
 
-<p class="mensaje-vacio">No se encontro un diagnostico para esa falla.</p>
+<p class="mensaje-vacio">No se encontró un diagnóstico para esa falla.</p>
 
 {% endif %}
 
 <div class="card" style="margin-top:20px;">
-    <h2 style="font-size:20px;margin-bottom:15px;">Historial de conversaciones de diagnostico</h2>
+    <h2 style="font-size:20px;margin-bottom:15px;">Historial de conversaciones de diagnóstico</h2>
 
     {% if historial_diagnosticos %}
     <table>
@@ -63,6 +64,7 @@
             <th>Agente</th>
             <th>Tiempo</th>
             <th>Detalle</th>
+            <th>Eliminar</th>
         </tr>
 
         {% for d in historial_diagnosticos %}
@@ -72,11 +74,22 @@
             <td>{{ d.agente }}</td>
             <td>{{ d.tiempo_diagnostico }} min</td>
             <td><a href="{% url 'diagnostico_detalle' d.id %}">Ver más</a></td>
+            <td>
+                <form method="POST" action="{% url 'eliminar_diagnostico' d.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button
+                        type="submit"
+                        class="btn btn-eliminar"
+                        onclick="return confirm('¿Seguro que deseas eliminar esta falla del historial?');">
+                        Eliminar
+                    </button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </table>
     {% else %}
-    <p class="mensaje-vacio">Todavia no hay conversaciones de diagnostico en tu historial.</p>
+    <p class="mensaje-vacio">Todavía no hay conversaciones de diagnóstico en tu historial.</p>
     {% endif %}
 </div>
 

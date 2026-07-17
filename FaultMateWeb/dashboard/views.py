@@ -15,6 +15,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from openpyxl import Workbook
 from .models import Diagnostico
 from agentes.models import Agentes, AgenteChatMensaje, AgenteEvento
+from faultmate.permissions import ROLE_DESARROLLADOR, get_user_role
 from usuarios.models import Usuario
 from faultmate.services.gemini_service import consultar_gemini
 
@@ -164,6 +165,7 @@ def home(request):
                 'conversaciones_usuario': conversaciones_usuario,
                 'recientes_diagnosticos': recientes_diagnosticos,
                 'ultimos_bots': ultimos_bots,
+                'can_create_users': get_user_role(request.user) == ROLE_DESARROLLADOR,
             },
         )
 
@@ -477,3 +479,12 @@ def diagnostico_detalle(request, diagnostico_id):
     """Muestra el diagnostico completo en una pagina separada."""
     diagnostico = get_object_or_404(Diagnostico, id=diagnostico_id)
     return render(request, 'dashboard/diagnostico_detalle.html', {'diagnostico': diagnostico})
+
+
+@login_required
+def eliminar_diagnostico(request, diagnostico_id):
+    """Elimina un diagnóstico del historial del usuario actual."""
+    diagnostico = get_object_or_404(Diagnostico, id=diagnostico_id, usuario=request.user)
+    if request.method == 'POST':
+        diagnostico.delete()
+    return redirect('diagnosticar')

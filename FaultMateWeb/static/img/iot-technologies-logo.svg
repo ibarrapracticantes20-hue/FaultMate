@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 210" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">IOT Technologies</title>
+  <desc id="logoDesc">Logo corporativo de IOT Technologies</desc>
+  <defs>
+    <linearGradient id="ringOuter" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#21659f"/>
+      <stop offset="100%" stop-color="#48a0d6"/>
+    </linearGradient>
+    <linearGradient id="ringInner" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1f4f80"/>
+      <stop offset="100%" stop-color="#2d7fb8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="980" height="210" fill="#ffffff"/>
+
+  <g transform="translate(24,25)">
+    <text x="0" y="130" font-family="Arial Black, Arial, sans-serif" font-size="132" fill="#111111">I</text>
+    <text x="66" y="130" font-family="Arial Black, Arial, sans-serif" font-size="132" fill="#111111">T</text>
+
+    <g transform="translate(146,18)">
+      <circle cx="58" cy="58" r="56" fill="none" stroke="#111111" stroke-width="15"/>
+      <circle cx="58" cy="58" r="38" fill="none" stroke="url(#ringOuter)" stroke-width="16"/>
+      <circle cx="58" cy="58" r="19" fill="none" stroke="url(#ringInner)" stroke-width="11"/>
+      <circle cx="58" cy="58" r="4" fill="#ffffff"/>
+    </g>
+
+    <text x="291" y="128" font-family="Arial, Helvetica, sans-serif" font-size="74" letter-spacing="8" font-weight="700" fill="#111111">TECHNOLOGIES</text>
+    <text x="295" y="160" font-family="Arial, Helvetica, sans-serif" font-size="24" letter-spacing="6" fill="#111111">Business Innovation Solutions</text>
+  </g>
+</svg>

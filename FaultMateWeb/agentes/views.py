@@ -6,7 +6,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 
 from faultmate.permissions import ROLE_ADMIN, ROLE_DESARROLLADOR, get_user_role, role_required
 from .forms import AgenteForm, GenerarAgenteForm
-from .models import Agentes, AgenteChatMensaje, AgenteEvento
+from .models import Agentes, AgenteChatMensaje, AgenteEvento, Falla, PreguntaDiagnostico, CausaRaiz
 from faultmate.services.gemini_service import consultar_gemini_agente
 
 
@@ -80,6 +80,135 @@ AGENTES_BASE = [
         'estilo': 'tecnico',
     },
 ]
+
+
+def _session_key_arbol(agente_id):
+    return f'arbol_decision_agente_{agente_id}'
+
+
+def _normalizar_respuesta_binaria(mensaje):
+    valor = (mensaje or '').strip().lower()
+    if valor in ['si', 'sí', 's', 'yes', 'y']:
+        return 'si'
+    if valor in ['no', 'n']:
+        return 'no'
+    return None
+
+
+def _buscar_falla_conocida(mensaje):
+    texto = (mensaje or '').strip()
+    if not texto:
+        return None
+
+    falla = Falla.objects.filter(nombre__iexact=texto).first()
+    if falla:
+        return falla
+
+    return Falla.objects.filter(nombre__icontains=texto).order_by('id').first()
+
+
+def _render_resultado_arbol(falla, respuestas):
+    causas = []
+    for respuesta in respuestas:
+        pregunta_id = respuesta.get('pregunta_id')
+        valor = respuesta.get('respuesta')
+        if not pregunta_id or valor not in ['si', 'no']:
+            continue
+        causas.extend(
+            list(
+                CausaRaiz.objects.filter(
+                    falla=falla,
+                    pregunta_disparadora_id=pregunta_id,
+                    respuesta_disparadora=valor,
+                )
+            )
+        )
+
+    if not causas:
+        causas = list(CausaRaiz.objects.filter(falla=falla))
+
+    if not causas:
+        return (
+            f'No hay causas raíz cargadas para la falla "{falla.nombre}". '
+            'Puedes registrar causas en el módulo de agentes para enriquecer este árbol.'
+        )
+
+    lineas = [
+        f'Falla identificada: {falla.nombre}',
+        '',
+        'Posibles causas raíz y acciones recomendadas:',
+    ]
+    for i, causa in enumerate(causas, start=1):
+        lineas.append(f'{i}. Causa: {causa.causa}')
+        lineas.append(f'   Acción correctiva: {causa.accion_correctiva}')
+
+    return '\n'.join(lineas)
+
+
+def _resolver_arbol_decision(request, agente, mensaje_usuario):
+    session_key = _session_key_arbol(agente.id)
+    estado = request.session.get(session_key)
+
+    if estado:
+        falla = Falla.objects.filter(id=estado.get('falla_id')).first()
+        if not falla:
+            request.session.pop(session_key, None)
+            request.session.modified = True
+            return None
+
+        preguntas = list(PreguntaDiagnostico.objects.filter(falla=falla).order_by('orden', 'id'))
+        if not preguntas:
+            request.session.pop(session_key, None)
+            request.session.modified = True
+            return _render_resultado_arbol(falla, estado.get('respuestas', []))
+
+        indice = int(estado.get('indice', 0))
+        if indice >= len(preguntas):
+            request.session.pop(session_key, None)
+            request.session.modified = True
+            return _render_resultado_arbol(falla, estado.get('respuestas', []))
+
+        respuesta = _normalizar_respuesta_binaria(mensaje_usuario)
+        pregunta_actual = preguntas[indice]
+        if not respuesta:
+            return f'Respóndeme solo con "sí" o "no" para continuar.\n\nPregunta: {pregunta_actual.pregunta}'
+
+        respuestas = list(estado.get('respuestas', []))
+        respuestas.append({'pregunta_id': pregunta_actual.id, 'respuesta': respuesta})
+        estado['respuestas'] = respuestas
+        estado['indice'] = indice + 1
+        request.session[session_key] = estado
+        request.session.modified = True
+
+        if estado['indice'] < len(preguntas):
+            siguiente = preguntas[estado['indice']]
+            return f'Entendido.\n\nSiguiente pregunta: {siguiente.pregunta}\n\nResponde con "sí" o "no".'
+
+        request.session.pop(session_key, None)
+        request.session.modified = True
+        return _render_resultado_arbol(falla, respuestas)
+
+    falla = _buscar_falla_conocida(mensaje_usuario)
+    if not falla:
+        return None
+
+    preguntas = list(PreguntaDiagnostico.objects.filter(falla=falla).order_by('orden', 'id'))
+    if not preguntas:
+        return _render_resultado_arbol(falla, [])
+
+    request.session[session_key] = {
+        'falla_id': falla.id,
+        'indice': 0,
+        'respuestas': [],
+    }
+    request.session.modified = True
+
+    primera = preguntas[0]
+    return (
+        f'Activé el árbol de decisión para la falla "{falla.nombre}".\n\n'
+        f'Pregunta 1: {primera.pregunta}\n\n'
+        'Responde con "sí" o "no".'
+    )
 
 
 @login_required
@@ -258,11 +387,13 @@ def chat_agente(request, id):
                 contenido=mensaje_usuario,
             )
 
-            historial = list(
-                AgenteChatMensaje.objects.filter(agente=agente, usuario=request.user)
-                .values('rol', 'contenido')
-            )
-            respuesta = consultar_gemini_agente(agente, mensaje_usuario, historial)
+            respuesta = _resolver_arbol_decision(request, agente, mensaje_usuario)
+            if not respuesta:
+                historial = list(
+                    AgenteChatMensaje.objects.filter(agente=agente, usuario=request.user)
+                    .values('rol', 'contenido')
+                )
+                respuesta = consultar_gemini_agente(agente, mensaje_usuario, historial)
 
             AgenteChatMensaje.objects.create(
                 agente=agente,
@@ -299,5 +430,7 @@ def limpiar_chat_agente(request, id):
     agente = get_object_or_404(Agentes, id=id)
     if request.method == 'POST':
         AgenteChatMensaje.objects.filter(agente=agente, usuario=request.user).delete()
+        request.session.pop(_session_key_arbol(agente.id), None)
+        request.session.modified = True
         messages.success(request, 'Se limpio el historial de chat del agente.')
     return redirect('chat_agente', id=agente.id)

@@ -3,7 +3,7 @@
 {% block title %}Dashboard - FaultMate{% endblock %}
 
 {% block titulo %}Dashboard FaultMate{% endblock %}
-{% block descripcion %}Plataforma inteligente para diagnostico de fallas industriales{% endblock %}
+{% block descripcion %}Plataforma inteligente para diagnóstico de fallas industriales{% endblock %}
 
 {% block content %}
 
@@ -11,16 +11,16 @@
     <h2 class="filtros-titulo">Filtros del dashboard</h2>
     <form method="GET" class="formulario filtros-grid">
         <div class="filtro-item">
-            <label>Fecha inicio</label>
-            <input type="date" name="fecha_inicio" value="{{ filtro_fecha_inicio }}" class="filtro-control">
+            <label for="fecha_inicio">Fecha inicio</label>
+            <input id="fecha_inicio" type="date" name="fecha_inicio" value="{{ filtro_fecha_inicio }}" class="filtro-control">
         </div>
         <div class="filtro-item">
-            <label>Fecha fin</label>
-            <input type="date" name="fecha_fin" value="{{ filtro_fecha_fin }}" class="filtro-control">
+            <label for="fecha_fin">Fecha fin</label>
+            <input id="fecha_fin" type="date" name="fecha_fin" value="{{ filtro_fecha_fin }}" class="filtro-control">
         </div>
         <div class="filtro-item">
-            <label>Tipo de administrador / rol</label>
-            <select name="rol" class="filtro-control">
+            <label for="rol">Tipo de administrador / rol</label>
+            <select id="rol" name="rol" class="filtro-control">
                 <option value="">Todos</option>
                 {% for rol_valor, rol_texto in roles_filtro %}
                     <option value="{{ rol_valor }}" {% if filtro_rol == rol_valor %}selected{% endif %}>{{ rol_texto }}</option>
@@ -40,7 +40,7 @@
     <div class="card">
         <div class="icono"><i class="bi bi-clipboard-data"></i></div>
         <h2>{{ total_diagnosticos }}</h2>
-        <p>Diagnosticos realizados</p>
+        <p>Diagnósticos realizados</p>
     </div>
 
     <div class="card">
@@ -95,7 +95,7 @@
 
 <div class="cards" style="grid-template-columns:repeat(auto-fit, minmax(320px,1fr));">
     <div class="card">
-        <h2 style="font-size:20px;margin-bottom:12px;">Diagnosticos por agente</h2>
+        <h2 style="font-size:20px;margin-bottom:12px;">Diagnósticos por agente</h2>
         <canvas id="donutDiagnosticos" height="220"></canvas>
     </div>
 
@@ -105,7 +105,7 @@
     </div>
 
     <div class="card">
-        <h2 style="font-size:20px;margin-bottom:12px;">Preguntas por dia</h2>
+        <h2 style="font-size:20px;margin-bottom:12px;">Preguntas por día</h2>
         <canvas id="linePreguntas" height="220"></canvas>
     </div>
 
@@ -116,13 +116,13 @@
 </div>
 
 <div class="card">
-    <h2 style="font-size:20px;margin-bottom:15px;">Ultimos diagnosticos</h2>
+    <h2 style="font-size:20px;margin-bottom:15px;">Últimos diagnósticos</h2>
 
     {% if diagnosticos %}
     <table>
         <tr>
             <th>Falla</th>
-            <th>Diagnostico</th>
+            <th>Diagnóstico</th>
             <th>Agente</th>
             <th>Tiempo</th>
             <th>Fecha</th>
@@ -139,7 +139,7 @@
         {% endfor %}
     </table>
     {% else %}
-    <p class="mensaje-vacio">Todavia no hay diagnosticos registrados.</p>
+    <p class="mensaje-vacio">Todavía no hay diagnósticos registrados.</p>
     {% endif %}
 </div>
 
@@ -198,7 +198,7 @@ new Chart(document.getElementById('linePreguntas'), {
     data: {
         labels: lineLabels,
         datasets: [{
-            label: 'Preguntas por dia',
+            label: 'Preguntas por día',
             data: lineValues,
             borderColor: cAcento,
             backgroundColor: 'rgba(255,102,27,0.15)',

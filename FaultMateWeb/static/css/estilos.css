@@ -84,6 +84,23 @@ a {
     font-size: 22px;
 }
 
+.brand-logo-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.brand-logo-sidebar {
+    width: 195px;
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 8px 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .22);
+    margin-bottom: 8px;
+}
+
 .sidebar .subtitulo {
     text-align: center;
     color: var(--color-primario-claro);
@@ -288,6 +305,20 @@ tr:hover td {
     margin-bottom: 15px;
 }
 
+.brand-logo-login-wrap {
+    margin-bottom: 10px;
+}
+
+.brand-logo-login {
+    width: 280px;
+    max-width: 100%;
+    height: auto;
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 10px 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+}
+
 /* 10) Pagina de inicio (publica, sin sesion) -------------------------------- */
 .inicio-header {
     background: var(--color-primario);
@@ -299,6 +330,19 @@ tr:hover td {
 .inicio-header h1 {
     color: var(--color-blanco);
     font-size: 32px;
+}
+
+.brand-logo-home-wrap {
+    margin-bottom: 12px;
+}
+
+.brand-logo-home {
+    width: min(520px, 92vw);
+    height: auto;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 10px 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .22);
 }
 
 .inicio-menu {

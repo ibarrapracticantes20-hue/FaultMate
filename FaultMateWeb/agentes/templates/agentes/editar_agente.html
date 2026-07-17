@@ -17,23 +17,23 @@
 
         {% csrf_token %}
 
-        <label>Nombre</label>
+        <label for="id_nombre">Nombre</label>
         {{ form.nombre }}
         {% if form.nombre.errors %}<p class="mensaje-error">{{ form.nombre.errors|join:', ' }}</p>{% endif %}
 
-        <label>Descripcion</label>
+        <label for="id_descripcion">Descripción</label>
         {{ form.descripcion }}
         {% if form.descripcion.errors %}<p class="mensaje-error">{{ form.descripcion.errors|join:', ' }}</p>{% endif %}
 
-        <label>Prompt</label>
+        <label for="id_prompt">Prompt</label>
         {{ form.prompt }}
         {% if form.prompt.errors %}<p class="mensaje-error">{{ form.prompt.errors|join:', ' }}</p>{% endif %}
 
-        <label>Temperatura (0 a 1)</label>
+        <label for="id_temperatura">Temperatura (0 a 1)</label>
         {{ form.temperatura }}
         {% if form.temperatura.errors %}<p class="mensaje-error">{{ form.temperatura.errors|join:', ' }}</p>{% endif %}
 
-        <label>Tokens maximos</label>
+        <label for="id_tokens">Tokens máximos</label>
         {{ form.tokens }}
         {% if form.tokens.errors %}<p class="mensaje-error">{{ form.tokens.errors|join:', ' }}</p>{% endif %}
 

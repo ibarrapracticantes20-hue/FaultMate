@@ -2,8 +2,8 @@
 
 {% block title %}Generar agente - FaultMate{% endblock %}
 
-{% block titulo %}Generar agente automaticamente{% endblock %}
-{% block descripcion %}Crea un agente con configuracion sugerida sin llenarlo manualmente{% endblock %}
+{% block titulo %}Generar agente automáticamente{% endblock %}
+{% block descripcion %}Crea un agente con configuración sugerida sin llenarlo manualmente{% endblock %}
 
 {% block content %}
 
@@ -16,19 +16,19 @@
     <form method="POST" class="formulario">
         {% csrf_token %}
 
-        <label>Nombre del agente</label>
+        <label for="id_nombre">Nombre del agente</label>
         {{ form.nombre }}
 
-        <label>Dominio</label>
+        <label for="id_dominio">Dominio</label>
         {{ form.dominio }}
 
-        <label>Tipo de maquina</label>
+        <label for="id_tipo_maquina">Tipo de máquina</label>
         {{ form.tipo_maquina }}
 
-        <label>Nivel de detalle</label>
+        <label for="id_nivel_detalle">Nivel de detalle</label>
         {{ form.nivel_detalle }}
 
-        <label>Estilo de respuesta</label>
+        <label for="id_estilo">Estilo de respuesta</label>
         {{ form.estilo }}
 
         <button type="submit" class="btn">Generar agente</button>

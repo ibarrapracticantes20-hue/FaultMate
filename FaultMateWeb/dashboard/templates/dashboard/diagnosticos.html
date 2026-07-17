@@ -1,8 +1,8 @@
 {% extends "dashboard/base.html" %}
 
-{% block title %}Diagnosticos - FaultMate{% endblock %}
+{% block title %}Diagnósticos - FaultMate{% endblock %}
 
-{% block titulo %}Modulo de diagnosticos{% endblock %}
+{% block titulo %}Módulo de diagnósticos{% endblock %}
 {% block descripcion %}Historial de fallas diagnosticadas por el sistema{% endblock %}
 
 {% block content %}
@@ -19,7 +19,7 @@
         <tr>
             <th>Falla</th>
             <th>Agente</th>
-            <th>Diagnostico</th>
+            <th>Diagnóstico</th>
             <th>Fecha</th>
         </tr>
 
@@ -33,7 +33,7 @@
         {% endfor %}
     </table>
     {% else %}
-    <p class="mensaje-vacio">Todavia no hay diagnosticos registrados.</p>
+    <p class="mensaje-vacio">Todavía no hay diagnósticos registrados.</p>
     {% endif %}
 
 </div>

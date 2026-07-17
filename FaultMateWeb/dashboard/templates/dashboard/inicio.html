@@ -3,14 +3,14 @@
 {% block title %}Inicio - FaultMate{% endblock %}
 
 {% block titulo %}Bienvenido, {{ request.user.username }}{% endblock %}
-{% block descripcion %}Aqui tienes un resumen rapido y accesos para trabajar en FaultMate{% endblock %}
+{% block descripcion %}Aquí tienes un resumen rápido y accesos para trabajar en FaultMate{% endblock %}
 
 {% block content %}
 
 <div class="cards">
     <div class="card">
         <h2>{{ total_diagnosticos }}</h2>
-        <p>Diagnosticos totales</p>
+        <p>Diagnósticos totales</p>
     </div>
     <div class="card">
         <h2>{{ total_agentes }}</h2>
@@ -32,11 +32,11 @@
 
 <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));">
     <div class="card">
-        <h2 style="font-size:22px;">Que puedes hacer aqui</h2>
+        <h2 style="font-size:22px;">Qué puedes hacer aquí</h2>
         <p>1. Diagnosticar fallas con base de conocimiento y Gemini.</p>
-        <p>2. Chatear con agentes especializados por area.</p>
+        <p>2. Chatear con agentes especializados por área.</p>
         <p>3. Administrar usuarios y agentes.</p>
-        <p>4. Revisar metricas en el Dashboard avanzado.</p>
+        <p>4. Revisar métricas en el Dashboard avanzado.</p>
         <br>
         <a href="{% url 'dashboard' %}" class="btn">Ir al Dashboard</a>
         <a href="{% url 'diagnosticar' %}" class="btn">Diagnosticar ahora</a>
@@ -58,13 +58,23 @@
                 {% endfor %}
             </table>
         {% else %}
-            <p class="mensaje-vacio">Aun no has usado chats de agentes.</p>
+            <p class="mensaje-vacio">Aún no has usado chats de agentes.</p>
         {% endif %}
     </div>
 </div>
 
+<div class="card" style="margin-bottom:20px;">
+    <h2 style="font-size:22px; margin-bottom:8px;">Área de bienvenida</h2>
+    <p>Desde este panel puedes iniciar diagnóstico, revisar el dashboard o gestionar catálogos del sistema.</p>
+    {% if can_create_users %}
+    <a href="{% url 'nuevo_usuario' %}" class="btn">Crear usuario</a>
+    {% else %}
+    <p class="mensaje-vacio" style="padding:8px 0 0 0;">Tu rol actual no permite crear usuarios.</p>
+    {% endif %}
+</div>
+
 <div class="card">
-    <h2 style="font-size:22px; margin-bottom:10px;">Ultimos diagnosticos del sistema</h2>
+    <h2 style="font-size:22px; margin-bottom:10px;">Últimos diagnósticos del sistema</h2>
     {% if recientes_diagnosticos %}
     <table>
         <tr>
@@ -83,7 +93,7 @@
         {% endfor %}
     </table>
     {% else %}
-    <p class="mensaje-vacio">Todavia no hay diagnosticos registrados.</p>
+    <p class="mensaje-vacio">Todavía no hay diagnósticos registrados.</p>
     {% endif %}
 </div>
 

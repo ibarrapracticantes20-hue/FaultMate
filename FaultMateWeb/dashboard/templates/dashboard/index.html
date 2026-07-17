@@ -11,22 +11,25 @@
 </head>
 <body>
 
-<!-- Pagina publica de bienvenida (todavia no se ha iniciado sesion) -->
+<!-- Página pública de bienvenida (todavía no se ha iniciado sesión) -->
 <header class="inicio-header">
+    <div class="brand-logo-wrap brand-logo-home-wrap">
+        <img src="{% static 'img/iot-technologies-logo.svg' %}" alt="IOT Technologies" class="brand-logo-home">
+    </div>
     <h1>FaultMate</h1>
-    <p>Sistema Inteligente de Diagnostico Industrial</p>
+    <p>Sistema Inteligente de Diagnóstico Industrial</p>
 </header>
 
 <!--
-    Antes esta pagina repetia aqui TODO el menu (Dashboard, Diagnosticar,
-    Agentes IA, Usuarios), igual que la barra lateral que se ve despues
-    de iniciar sesion. Eso hacia que el flujo se sintiera repetido: se
-    veia el mismo menu dos veces (uno en el inicio y otro en el sidebar).
-    Como esas paginas ahora requieren haber iniciado sesion, aqui solo
-    dejamos una unica accion clara: iniciar sesion.
+    Antes esta página repetía aquí el menú completo (Dashboard, Diagnosticar,
+    Agentes IA, Usuarios), igual que la barra lateral que se ve después
+    de iniciar sesión. Eso hacía que el flujo se sintiera repetido: se
+    veía el mismo menú dos veces (uno en el inicio y otro en el sidebar).
+    Como esas páginas ahora requieren haber iniciado sesión, aquí solo
+    dejamos una única acción clara: iniciar sesión.
 -->
 <nav class="inicio-menu">
-    <a href="/login/">Iniciar sesion</a>
+    <a href="/login/">Iniciar sesión</a>
 </nav>
 
 </body>

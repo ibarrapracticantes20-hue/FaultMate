@@ -47,7 +47,20 @@ class PreguntaDiagnostico(models.Model):
 
 class CausaRaiz(models.Model):
     """Posible causa raiz de una Falla y su accion correctiva sugerida."""
+    RESPUESTA_CHOICES = (
+        ('si', 'Sí'),
+        ('no', 'No'),
+    )
+
     falla = models.ForeignKey(Falla, on_delete=models.CASCADE)
+    pregunta_disparadora = models.ForeignKey(
+        PreguntaDiagnostico,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text='Si se define, esta causa aplica cuando esa pregunta tenga la respuesta indicada.',
+    )
+    respuesta_disparadora = models.CharField(max_length=2, choices=RESPUESTA_CHOICES, null=True, blank=True)
     causa = models.CharField(max_length=200)
     accion_correctiva = models.TextField()
 

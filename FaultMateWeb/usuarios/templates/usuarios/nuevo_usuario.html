@@ -3,7 +3,7 @@
 {% block title %}Nuevo usuario - FaultMate{% endblock %}
 
 {% block titulo %}Crear nuevo usuario{% endblock %}
-{% block descripcion %}Esta persona podra iniciar sesion con su correo y contrasena{% endblock %}
+{% block descripcion %}Esta persona podrá iniciar sesión con su correo y contraseña{% endblock %}
 
 {% block content %}
 
@@ -17,19 +17,19 @@
 
         {% csrf_token %}
 
-        <label>Nombre</label>
+        <label for="id_nombre">Nombre</label>
         {{ form.nombre }}
         {% if form.nombre.errors %}<p class="mensaje-error">{{ form.nombre.errors|join:', ' }}</p>{% endif %}
 
-        <label>Correo (se usara para iniciar sesion)</label>
+        <label for="id_correo">Correo (se usará para iniciar sesión)</label>
         {{ form.correo }}
         {% if form.correo.errors %}<p class="mensaje-error">{{ form.correo.errors|join:', ' }}</p>{% endif %}
 
-        <label>Rol</label>
+        <label for="id_rol">Rol</label>
         {{ form.rol }}
         {% if form.rol.errors %}<p class="mensaje-error">{{ form.rol.errors|join:', ' }}</p>{% endif %}
 
-        <label>Contrasena</label>
+        <label for="id_password">Contraseña</label>
         {{ form.password }}
         {% if form.password.errors %}<p class="mensaje-error">{{ form.password.errors|join:', ' }}</p>{% endif %}
 
