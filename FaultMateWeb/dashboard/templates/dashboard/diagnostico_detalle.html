@@ -18,7 +18,18 @@
     <p><b>Tiempo:</b> {{ diagnostico.tiempo_diagnostico }} min</p>
     <p><b>Fecha:</b> {{ diagnostico.fecha }}</p>
 
-    <p><a href="{% url 'diagnosticar' %}">Volver a diagnosticar</a></p>
+    <div style="margin-top:12px;">
+        <a href="{% url 'diagnosticar' %}" class="btn">Volver a diagnosticar</a>
+        <form method="POST" action="{% url 'eliminar_diagnostico' diagnostico.id %}" style="display:inline; margin-left:8px;">
+            {% csrf_token %}
+            <button
+                type="submit"
+                class="btn btn-eliminar"
+                onclick="return confirm('¿Seguro que deseas eliminar este diagnóstico?');">
+                Eliminar diagnóstico
+            </button>
+        </form>
+    </div>
 </div>
 
 {% endblock %}

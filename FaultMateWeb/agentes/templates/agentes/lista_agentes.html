@@ -14,31 +14,9 @@
     dashboard "tapaba" esta misma direccion (/agentes/). Ahora esta es la
     unica pagina para /agentes/ y los botones si funcionan.
 -->
-{% if can_manage_agentes %}
-<div class="card" style="margin-bottom:20px;">
-    <h2 style="font-size:22px; margin-bottom:8px;">Crear agentes</h2>
-    <p>Desde aquí puedes crear un agente manualmente o generarlo con configuración sugerida.</p>
-    <a href="{% url 'nuevo_agente' %}" class="btn">+ Nuevo agente</a>
-    <a href="{% url 'generar_agente' %}" class="btn">Generar agente</a>
-    <form method="POST" action="{% url 'generar_agentes_base' %}" style="display:inline; margin-left:8px;">
-        {% csrf_token %}
-        <button type="submit" class="btn">Generar agentes base</button>
-    </form>
-</div>
-
-{% else %}
-<div class="card" style="margin-bottom:20px;">
-    <h2 style="font-size:22px; margin-bottom:8px;">Creación de agentes</h2>
-    <p>Para crear o editar agentes necesitas rol de administrador o desarrollador.</p>
-</div>
-
-{% endif %}
-
-<br><br>
-
 <div class="card" style="margin-bottom:20px;">
     <h2 style="font-size:22px; margin-bottom:8px;">Agentes base del sistema</h2>
-    <p>Son agentes precargados para iniciar rápido. Puedes chatear con ellos y consultar sus parámetros.</p>
+    <p class="texto-informativo">Son agentes precargados para iniciar rápido. Puedes chatear con ellos y consultar sus parámetros.</p>
 </div>
 
 <div class="cards">
@@ -74,8 +52,14 @@
 </div>
 
 <div class="card" style="margin-top:20px; margin-bottom:20px;">
-    <h2 style="font-size:22px; margin-bottom:8px;">Agentes personalizados (CRUD)</h2>
-    <p>Aquí van los agentes creados por el equipo. Puedes crear, editar y eliminar según tu rol.</p>
+    <h2 style="font-size:22px; margin-bottom:8px;">Agentes personalizados</h2>
+    {% if can_manage_agentes %}
+    <div style="margin-top:10px; margin-bottom:10px;">
+        <a href="{% url 'nuevo_agente' %}" class="btn">+ Nuevo agente</a>
+        <a href="{% url 'generar_agente' %}" class="btn">Generar agente</a>
+    </div>
+    {% endif %}
+    <p class="texto-informativo">Gestiona aquí tus agentes personalizados para diagnóstico específico del equipo.</p>
 </div>
 
 <div class="cards">
@@ -104,7 +88,7 @@
 
 {% empty %}
 
-<p class="mensaje-vacio">Todavía no hay agentes personalizados. Usa + Nuevo agente o Generar agente.</p>
+<p class="mensaje-vacio">Todavía no hay agentes personalizados.</p>
 
 {% endfor %}
 

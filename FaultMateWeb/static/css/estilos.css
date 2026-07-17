@@ -105,8 +105,15 @@ a {
     text-align: center;
     color: var(--color-primario-claro);
     font-size: 13px;
-    margin-top: -20px;
+    margin-top: 0;
     margin-bottom: 20px;
+}
+
+.texto-informativo {
+    color: var(--texto-suave);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.45;
 }
 
 .sidebar a {
