@@ -10,3 +10,7 @@ venv/
 .git/
 .gitignore
 staticfiles/
+
+# Herramientas de desarrollo local (no se usan en Azure)
+setup_local.bat
+.env.example

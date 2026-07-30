@@ -1,0 +1,25 @@
+# Entornos virtuales de Python
+.venv/
+venv/
+env/
+
+# Bytecode / cache de Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Django
+*.sqlite3
+db.sqlite3
+staticfiles/
+
+# Variables de entorno y secretos (nunca se suben al repo)
+.env
+.env.*
+!.env.example
+
+# Editor / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
