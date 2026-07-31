@@ -671,6 +671,126 @@ tr:hover td {
     font-size: 13px;
 }
 
+/* 10.1) Footer institucional con redes sociales ----------------------------- */
+.landing-info-footer {
+    margin-top: 60px;
+    background: var(--color-oscuro);
+    color: #cfd6dd;
+}
+
+.landing-info-footer-grid {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 48px 0 32px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 32px;
+}
+
+.landing-info-footer-col h4 {
+    color: var(--color-blanco);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    margin: 0 0 16px;
+}
+
+.landing-info-footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.landing-info-footer-logo {
+    height: 28px;
+    width: auto;
+}
+
+.landing-info-footer-brand span {
+    color: var(--color-blanco);
+    font-weight: 800;
+    font-size: 18px;
+}
+
+.landing-info-footer-col p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #a7b1bd;
+    max-width: 360px;
+}
+
+.landing-info-footer-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.landing-info-footer-links a {
+    color: #a7b1bd;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color .15s ease;
+}
+
+.landing-info-footer-links a:hover {
+    color: var(--color-primario-claro);
+}
+
+.landing-social-row {
+    display: flex;
+    gap: 12px;
+}
+
+.landing-social-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, .08);
+    color: var(--color-blanco);
+    transition: transform .15s ease, background .15s ease;
+}
+
+.landing-social-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.landing-social-icon:hover {
+    transform: translateY(-2px);
+}
+
+.landing-social-instagram:hover { background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4); }
+.landing-social-x:hover { background: #000000; }
+.landing-social-facebook:hover { background: #1877f2; }
+.landing-social-youtube:hover { background: #ff0000; }
+
+.landing-info-footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, .1);
+}
+
+.landing-info-footer-bottom p {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 18px 0;
+    font-size: 13px;
+    color: #8b94a1;
+    text-align: center;
+}
+
+@media (max-width: 720px) {
+    .landing-info-footer-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+}
+
 /* 11) Textos de ayuda / mensajes -------------------------------------------- */
 .mensaje-vacio {
     color: var(--texto-suave);
