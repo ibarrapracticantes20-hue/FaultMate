@@ -16,9 +16,9 @@
 
   <g transform="translate(24,25)">
     <text x="0" y="130" font-family="Arial Black, Arial, sans-serif" font-size="132" fill="#111111">I</text>
-    <text x="66" y="130" font-family="Arial Black, Arial, sans-serif" font-size="132" fill="#111111">T</text>
+    <text x="146" y="130" font-family="Arial Black, Arial, sans-serif" font-size="132" fill="#111111">T</text>
 
-    <g transform="translate(146,18)">
+    <g transform="translate(66,18)">
       <circle cx="58" cy="58" r="56" fill="none" stroke="#111111" stroke-width="15"/>
       <circle cx="58" cy="58" r="38" fill="none" stroke="url(#ringOuter)" stroke-width="16"/>
       <circle cx="58" cy="58" r="19" fill="none" stroke="url(#ringInner)" stroke-width="11"/>
