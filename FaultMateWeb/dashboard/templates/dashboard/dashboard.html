@@ -208,8 +208,11 @@ let chartPareto = null;
 let modalChart = null;
 
 function cloneDeep(data) {
-    if (typeof structuredClone === 'function') {
-        return structuredClone(data);
+    // No usar structuredClone: las opciones de Chart.js incluyen funciones
+    // (onClick, tooltip.callbacks...) y structuredClone no puede clonarlas
+    // (lanza DataCloneError), lo que dejaba el modal de "Enfoque" en blanco.
+    if (typeof data === 'function') {
+        return data;
     }
     if (Array.isArray(data)) {
         return data.map(cloneDeep);
@@ -249,12 +252,6 @@ function openModal(title) {
 function closeModal() {
     const modal = document.getElementById('chartModal');
     modal.close();
-    const body = document.getElementById('chartModalBody');
-    body.innerHTML = '<canvas id="chartModalCanvas"></canvas>';
-    if (modalChart) {
-        modalChart.destroy();
-        modalChart = null;
-    }
 }
 
 function abrirGraficaEnGrande(chartInstance, titulo) {
@@ -524,6 +521,19 @@ if (tablaExpandBtn) {
 }
 
 document.getElementById('chartModalClose').addEventListener('click', closeModal);
+
+// El evento nativo 'close' del <dialog> se dispara sin importar como se
+// cerro (boton, tecla Escape, etc.), asi que ahi va la limpieza real:
+// evita que quede una grafica sin destruir y el canvas "en uso" para
+// la siguiente vez que se abra el Enfoque.
+document.getElementById('chartModal').addEventListener('close', () => {
+    const body = document.getElementById('chartModalBody');
+    body.innerHTML = '<canvas id="chartModalCanvas"></canvas>';
+    if (modalChart) {
+        modalChart.destroy();
+        modalChart = null;
+    }
+});
 </script>
 
 {% endblock %}
