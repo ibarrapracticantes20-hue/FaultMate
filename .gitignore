@@ -18,6 +18,9 @@ staticfiles/
 .env.*
 !.env.example
 
+# Jupyter
+.ipynb_checkpoints/
+
 # Editor / SO
 .vscode/
 .idea/
