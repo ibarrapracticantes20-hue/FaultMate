@@ -34,7 +34,8 @@ FaultMate corre local con Django y permite:
 - WhiteNoise (estaticos)
 - Gunicorn (produccion)
 - dj-database-url
-- PostgreSQL/MySQL (opcional por `DATABASE_URL`) o SQLite por defecto
+- MySQL (WampServer)
+- SQLite (utilizado en etapas iniciales de desarrollo)
 - Google Gemini (`google-genai`)
 
 ## Estructura del proyecto
@@ -138,13 +139,16 @@ Usuarios admin completos (rol Desarrollador):
 
 Configuracion actual en `FaultMateWeb/faultmate/settings.py`:
 
-- Si existe `DATABASE_URL`, Django usa esa base (PostgreSQL/MySQL segun URL).
-- Si no existe `DATABASE_URL`, usa SQLite local (`db.sqlite3`).
+- Durante desarrollo inicial se utilizó SQLite.
+- Actualmente el proyecto se encuentra en proceso de migración a MySQL mediante WampServer.
+- Si existe `DATABASE_URL`, Django utilizará la conexión MySQL configurada.
+- Si no existe `DATABASE_URL`, utilizará SQLite (`db.sqlite3`) como respaldo local.
 
 Resumen:
 
-- Local por defecto: SQLite.
-- Produccion recomendada: PostgreSQL administrado en Azure.
+- Desarrollo inicial: SQLite.
+- Desarrollo y validación actual: MySQL (WampServer).
+- Despliegue futuro: MySQL en entorno de producción.
 
 ## Variables de entorno
 
@@ -187,7 +191,7 @@ Este repo incluye una guia de despliegue:
 
 Flujo recomendado:
 
-1. Crear recursos (App Service o Container Apps + PostgreSQL).
+1. Crear recursos (App Service o Container Apps + MySQL).
 2. Configurar `DATABASE_URL`, `DEBUG=False`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`.
 3. Ejecutar migraciones en entorno de despliegue.
 4. Validar login, dashboard y estaticos.
@@ -277,9 +281,9 @@ Invoke-WebRequest -Uri "https://ca-faultmate-web-scus.happyriver-ea030381.southc
 
 ### 3) "No guarda datos en produccion"
 
-- Configura `DATABASE_URL` hacia PostgreSQL.
-- Revisa conectividad/firewall de la base.
-- Reaplica migraciones en entorno de despliegue.
+- Verifica la configuración de MySQL.
+- Confirma que `DATABASE_URL` apunta correctamente al servidor MySQL.
+- Revisa conectividad y permisos de la base de datos.
 
 ## Estado de referencia
 
