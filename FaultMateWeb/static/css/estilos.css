@@ -949,6 +949,14 @@ tr:hover td {
     width: min(1180px, calc(100% - 24px));
     max-width: calc(100% - 24px);
     z-index: 1200;
+    /* El reset global "* { margin: 0 }" anula el "margin: auto" que el
+       navegador usa por defecto para centrar un <dialog>, asi que se
+       centra explicitamente con position fixed + transform. */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin: 0;
+    transform: translate(-50%, -50%);
 }
 
 .chart-modal::backdrop {

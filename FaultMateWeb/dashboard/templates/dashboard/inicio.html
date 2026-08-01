@@ -154,8 +154,11 @@ const chartRegistry = {};
 let modalChart = null;
 
 function cloneDeep(data) {
-    if (typeof structuredClone === 'function') {
-        return structuredClone(data);
+    // No usar structuredClone: las opciones de Chart.js incluyen funciones
+    // (tooltip.callbacks...) y structuredClone no puede clonarlas (lanza
+    // DataCloneError), lo que dejaba el modal de "Enfoque" en blanco.
+    if (typeof data === 'function') {
+        return data;
     }
     if (Array.isArray(data)) {
         return data.map(cloneDeep);
