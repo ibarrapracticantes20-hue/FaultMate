@@ -2,15 +2,19 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
 *.sqlite3
 db.sqlite3
+
 .venv/
 venv/
+
 .env
+
 .git/
-.gitignore
+
 staticfiles/
 
 # Herramientas de desarrollo local (no se usan en Azure)
 setup_local.bat
-.env.example
+
