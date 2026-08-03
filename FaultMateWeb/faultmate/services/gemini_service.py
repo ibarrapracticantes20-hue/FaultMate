@@ -4,7 +4,7 @@
 from google import genai
 
 # Configuracion solicitada: API key hardcodeada.
-GEMINI_API_KEY = "AQ.Ab8RN6IaaoqSAuQ7FbV9FZgImFBxUreYTLyrx5Gmi_koU-1yoA"
+GEMINI_API_KEY = "AQ.Ab8RN6KXvIoekxkTO6zt9olu0rmyMIgiyCbOzhaIkhl5wvfwBg"
 
 # Si no hay clave configurada, "cliente" queda en None y avisamos con un
 # mensaje claro en vez de que el programa se caiga con un error raro.
