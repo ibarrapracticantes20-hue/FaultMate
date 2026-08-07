@@ -142,7 +142,9 @@ def home(request):
             .count()
         )
 
-        recientes_diagnosticos = Diagnostico.objects.order_by('-fecha')[:5]
+        recientes_diagnosticos = Diagnostico.objects.filter(
+    usuario=request.user
+).order_by('-fecha')[:5]
 
         diagnosticos_data = []
         for item in Diagnostico.objects.order_by('-fecha'):
@@ -230,7 +232,12 @@ def dashboard(request):
     fecha_fin = request.GET.get('fecha_fin')
     rol = request.GET.get('rol')
 
+    if request.user.is_superuser:
     diagnosticos_qs = Diagnostico.objects.all()
+else:
+    diagnosticos_qs = Diagnostico.objects.filter(
+        usuario=request.user
+    )
     chats_qs = AgenteChatMensaje.objects.all()
     eventos_qs = AgenteEvento.objects.all()
 
@@ -394,7 +401,9 @@ def dashboard(request):
 @login_required
 def diagnosticos(request):
     """Muestra el historial de diagnosticos guardados en la base de datos."""
-    diagnosticos = Diagnostico.objects.all().order_by('-fecha')
+    diagnosticos = Diagnostico.objects.filter(
+    usuario=request.user
+).order_by('-fecha')
 
     return render(
         request,
