@@ -5,56 +5,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - FaultMate</title>
-
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+    <!-- AGREGADO: estilos para el ícono de mostrar/ocultar contraseña -->
+    <style>
+        .campo-password {
+            position: relative;
+        }
+        .campo-password input {
+            width: 100%;
+            padding-right: 40px;
+            box-sizing: border-box;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            color: #6b7280;
+        }
+        .toggle-password:hover {
+            color: #374151;
+        }
+        .toggle-password svg {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
 </head>
 <body>
-
 <div class="login-caja">
-
     <p style="text-align:left; margin-bottom:12px;">
         <a href="/" class="login-back-link">&larr; Volver al inicio</a>
     </p>
-
     <div class="brand-logo-wrap brand-logo-login-wrap">
     <img src="{% static 'img/faultmate_logo.png' %}" alt="FaultMate" class="brand-logo-login">
 </div>
-
 <h2 class="faultmate-title">FaultMate</h2>
 <p class="faultmate-subtitle">
 Sistema Inteligente de Diagnóstico Industrial
 </p>
-
     {% if error %}
     <p class="mensaje-error">{{ error }}</p>
     {% endif %}
-
     <!--
         Usuario de prueba (se crea solo al correr "migrate"):
         usuario: test
         contraseña: test123
     -->
     <form class="formulario" action="{% url 'login' %}" method="post">
-
         {% csrf_token %}
-
         <label for="usuario">Usuario</label>
         <input id="usuario" type="text" name="usuario" placeholder="Escribe tu usuario" required>
 
         <label for="password">Contraseña</label>
-        <input id="password" type="password" name="password" placeholder="Escribe tu contraseña" required>
+        <!-- AGREGADO: div envolvente + ícono de ojo -->
+        <div class="campo-password">
+            <input id="password" type="password" name="password" placeholder="Escribe tu contraseña" required>
+            <span class="toggle-password" data-target="password">
+                <svg class="icon-eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg class="icon-eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 5.06-6.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+            </span>
+        </div>
 
         <button type="submit" class="btn" style="width:100%;">Ingresar</button>
-
     </form>
-
     <p style="margin-top:12px; text-align:center;">
         ¿No tienes cuenta?
         <a href="{% url 'registro_publico' %}">Regístrate aquí</a>
     </p>
-
 </div>
 
+<!-- AGREGADO: script para alternar entre mostrar/ocultar contraseña -->
+<script>
+    document.querySelectorAll('.toggle-password').forEach(function (toggle) {
+        toggle.addEventListener('click', function () {
+            var targetId = toggle.getAttribute('data-target');
+            var input = document.getElementById(targetId);
+            var eyeOpen = toggle.querySelector('.icon-eye-open');
+            var eyeClosed = toggle.querySelector('.icon-eye-closed');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
+            }
+        });
+    });
+</script>
 </body>
 </html>
