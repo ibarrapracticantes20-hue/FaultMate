@@ -15,12 +15,15 @@
 
 /* 1) Colores y variables reutilizables ------------------------------ */
 :root {
-    --color-primario: #1d7eae;       /* Azul institucional */
-    --color-primario-oscuro: #0032a0; /* Azul secundario (mas oscuro) */
-    --color-primario-claro: #98dae9;  /* Azul claro, para detalles */
-    --color-acento: #ff661b;          /* Naranja, para llamados de atencion */
-    --color-oscuro: #231f20;          /* Casi negro, para textos y barra lateral */
-    --color-gris: #bdc6c3;            /* Gris neutro */
+    --color-primario: #2563EB;
+    --color-primario-oscuro: #0F172A;
+    --color-primario-claro: #60A5FA;
+    --color-acento: #334155;
+
+    --color-oscuro: #0F172A;
+    --color-gris: #CBD5E1;
+} 
+
     --color-fondo: #f4f6f9;           /* Fondo general de las paginas */
     --color-blanco: #ffffff;
 
