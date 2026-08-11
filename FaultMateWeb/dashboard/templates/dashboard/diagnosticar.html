@@ -8,34 +8,33 @@
 {% block content %}
 
 <div class="card" style="margin-bottom:20px;">
-
     <form method="POST" class="formulario">
-
         {% csrf_token %}
 
-          <label for="falla">Descripción de la falla</label>
-        <input
-              id="falla"
-           type="text"
-           name="falla"
-           placeholder="Ej. El motor no arranca"
-           required>
+        <label for="falla">Descripción de la falla</label>
+        <div class="voz-input-wrap">
+            <input
+                id="falla"
+                type="text"
+                name="falla"
+                placeholder="Ej. El motor no arranca"
+                required>
+
+            <button
+                type="button"
+                id="btnDictado"
+                class="btn btn-voz"
+                aria-label="Dictar por voz">
+                <i class="bi bi-mic"></i><span>Dictar</span>
+            </button>
+        </div>
+
+        <p id="estadoDictado" class="estado-dictado" aria-live="polite"></p>
 
         <button type="submit" class="btn">Diagnosticar</button>
-
     </form>
-
 </div>
 
-<!--
-    Logica de la pagina (ver dashboard/views.py -> diagnosticar):
-    1. Si la falla ya estaba guardada en la base de datos, se muestra "resultado".
-    2. Si es una falla nueva, se muestra la respuesta generada por la IA (respuesta_gemini).
-    3. Si no se encontró nada, se avisa al usuario.
-    Antes esta plantilla tenia un error de escritura (revisaba una variable
-    llamada "respuest_gemini" que nunca existia) y por eso a veces se
-    mostraban dos mensajes contradictorios al mismo tiempo.
--->
 {% if diagnostico_mostrado %}
 
 <div class="resultado-ia">
@@ -92,5 +91,107 @@
     <p class="mensaje-vacio">Todavía no hay conversaciones de diagnóstico en tu historial.</p>
     {% endif %}
 </div>
+
+<style>
+  /* Estilos mínimos y coherentes con tu tema (sin hardcodear colores) */
+  .voz-input-wrap{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .voz-input-wrap input{
+    flex:1;
+  }
+  .btn-voz{
+    white-space:nowrap;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .estado-dictado{
+    margin:10px 0 0;
+    min-height:18px;
+    font-size:0.95rem;
+    color: var(--color-gris);
+  }
+</style>
+
+<script>
+  (function() {
+    const btn = document.getElementById('btnDictado');
+    const input = document.getElementById('falla');
+    const estado = document.getElementById('estadoDictado');
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      if (estado) estado.textContent = 'Dictado por voz no compatible en este navegador (usa Chrome/Edge).';
+      if (btn) btn.disabled = true;
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'es-ES';
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    let escuchando = false;
+
+    function setEstado(msg) {
+      if (estado) estado.textContent = msg || '';
+    }
+
+    btn.addEventListener('click', () => {
+      if (!escuchando) {
+        try {
+          recognition.start();
+          escuchando = true;
+          setEstado('🎙️ Escuchando...');
+          btn.classList.add('active');
+        } catch (e) {
+          // start() puede lanzar error si se llama dos veces seguidas
+          setEstado('No se pudo iniciar el dictado. Intenta nuevamente.');
+        }
+      } else {
+        try {
+          recognition.stop();
+          escuchando = false;
+          setEstado('⏹️ Listo.');
+          btn.classList.remove('active');
+        } catch (e) {
+          setEstado('No se pudo detener el dictado.');
+        }
+      }
+    });
+
+    recognition.onresult = (event) => {
+      let transcript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      // Actualiza el input con lo dictado (interim + final)
+      input.value = transcript.trim();
+    };
+
+    recognition.onerror = (event) => {
+      escuchando = false;
+      btn.classList.remove('active');
+      if (event.error === 'not-allowed') {
+        setEstado('Permiso denegado para micrófono. Habilítalo en el navegador.');
+      } else if (event.error === 'network') {
+        setEstado('Error de red al dictar. Revisa conexión e intenta de nuevo.');
+      } else {
+        setEstado('Error al dictar. Intenta nuevamente.');
+      }
+    };
+
+    recognition.onend = () => {
+      // onend también ocurre al stop() o fin de escucha
+      escuchando = false;
+      btn.classList.remove('active');
+      setEstado('✅ Dictado listo.');
+    };
+  })();
+</script>
 
 {% endblock %}
