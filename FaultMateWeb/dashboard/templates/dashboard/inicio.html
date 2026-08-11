@@ -142,12 +142,13 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const cPrim = '#1d7eae';
-const cPrimOsc = '#0032a0';
-const cPrimCla = '#98dae9';
-const cAcento = '#ff661b';
-const cOsc = '#231f20';
-const paleta = [cPrim, cPrimOsc, cPrimCla, cAcento, cOsc, '#22c55e', '#ef4444', '#bdc6c3'];
+/* Paleta FaultMate — azul industrial / gris acero (solo tonos azules y grises) */
+const cPrim    = '#1d4e89'; // azul industrial (principal)
+const cPrimOsc = '#0f2942'; // azul marino oscuro
+const cPrimCla = '#8fb8e0'; // azul claro
+const cAcento  = '#2e75b6'; // azul medio (línea de tendencia / acumulado)
+const cOsc     = '#334155'; // gris acero oscuro
+const paleta = [cPrim, cPrimOsc, cAcento, cPrimCla, '#5b9bd5', cOsc, '#64748b', '#94a3b8', '#cbd5e1'];
 
 const rawDiagnosticos = JSON.parse(document.getElementById('inicio-chart-raw-diagnosticos').textContent);
 const chartRegistry = {};
@@ -267,7 +268,7 @@ function buildCharts() {
         type: 'line',
         data: {
             labels: dias.map((x) => x[0]),
-            datasets: [{ label: 'Incidencias', data: dias.map((x) => x[1]), borderColor: cAcento, backgroundColor: 'rgba(255,102,27,0.15)', fill: true, tension: 0.3 }],
+            datasets: [{ label: 'Incidencias', data: dias.map((x) => x[1]), borderColor: cAcento, backgroundColor: 'rgba(46,117,182,0.15)', fill: true, tension: 0.3 }],
         },
         options: {
             responsive: true,
@@ -285,7 +286,7 @@ function buildCharts() {
             labels: fallas.map((x) => shortLabel(x[0], 16)),
             datasets: [
                 { type: 'bar', label: 'Incidencias', data: fallas.map((x) => x[1]), backgroundColor: cPrimCla, yAxisID: 'y' },
-                { type: 'line', label: 'Acumulado %', data: pareto, borderColor: cAcento, fill: false, tension: 0.25, yAxisID: 'y1' },
+                { type: 'line', label: 'Acumulado %', data: pareto, borderColor: cOsc, fill: false, tension: 0.25, yAxisID: 'y1' },
             ],
         },
         options: {
