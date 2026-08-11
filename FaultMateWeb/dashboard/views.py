@@ -233,11 +233,11 @@ def dashboard(request):
     rol = request.GET.get('rol')
 
     if request.user.is_superuser:
-    diagnosticos_qs = Diagnostico.objects.all()
-else:
-    diagnosticos_qs = Diagnostico.objects.filter(
-        usuario=request.user
-    )
+        diagnosticos_qs = Diagnostico.objects.all()
+    else:
+        diagnosticos_qs = Diagnostico.objects.filter(
+            usuario=request.user
+        )
     chats_qs = AgenteChatMensaje.objects.all()
     eventos_qs = AgenteEvento.objects.all()
 
