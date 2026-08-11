@@ -186,12 +186,13 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const cPrim = '#0F4C81';
-const cPrimOsc = '#1D7EAE';
-const cPrimCla = '#98DAE9';
-const cAcento = '#1D7EAE';
-const cOsc = '#4B5563';
-const paleta = ['#0F4C81', '#1D7EAE', '#98DAE9', '#4B5563', '#9CA3AF', '#D1D5DB', '#4B5563', '#9CA3AF'];
+/* Paleta FaultMate — azul industrial / gris acero (misma paleta que inicio.html) */
+const cPrim = '#1d4e89';       // azul industrial (principal)
+const cPrimOsc = '#0f2942';    // azul marino oscuro
+const cPrimCla = '#8fb8e0';    // azul claro
+const cAcento = '#2e75b6';     // azul medio (línea de tendencia / acumulado)
+const cOsc = '#334155';        // gris acero oscuro
+const paleta = [cPrim, cPrimOsc, cAcento, cPrimCla, '#5b9bd5', cOsc, '#64748b', '#94a3b8', '#cbd5e1'];
 
 const rawDiagnosticos = JSON.parse(document.getElementById('chart-raw-diagnosticos').textContent);
 
@@ -208,9 +209,6 @@ let chartPareto = null;
 let modalChart = null;
 
 function cloneDeep(data) {
-    // No usar structuredClone: las opciones de Chart.js incluyen funciones
-    // (onClick, tooltip.callbacks...) y structuredClone no puede clonarlas
-    // (lanza DataCloneError), lo que dejaba el modal de "Enfoque" en blanco.
     if (typeof data === 'function') {
         return data;
     }
@@ -412,7 +410,7 @@ function reconstruirGraficas() {
                 label: 'Incidencias',
                 data: dias.map((x) => x[1]),
                 borderColor: cAcento,
-                backgroundColor: 'rgba(255,102,27,0.15)',
+                backgroundColor: 'rgba(46,117,182,0.15)',
                 fill: true,
                 tension: 0.3,
             }],
@@ -452,8 +450,8 @@ function reconstruirGraficas() {
                     type: 'line',
                     label: 'Acumulado %',
                     data: paretoAcumuladoPct,
-                    borderColor: cAcento,
-                    backgroundColor: 'rgba(255,102,27,0.15)',
+                    borderColor: cOsc,
+                    backgroundColor: 'rgba(51,65,85,0.12)',
                     tension: 0.25,
                     fill: false,
                     yAxisID: 'y1',
@@ -522,10 +520,6 @@ if (tablaExpandBtn) {
 
 document.getElementById('chartModalClose').addEventListener('click', closeModal);
 
-// El evento nativo 'close' del <dialog> se dispara sin importar como se
-// cerro (boton, tecla Escape, etc.), asi que ahi va la limpieza real:
-// evita que quede una grafica sin destruir y el canvas "en uso" para
-// la siguiente vez que se abra el Enfoque.
 document.getElementById('chartModal').addEventListener('close', () => {
     const body = document.getElementById('chartModalBody');
     body.innerHTML = '<canvas id="chartModalCanvas"></canvas>';
