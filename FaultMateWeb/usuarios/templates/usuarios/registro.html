@@ -10,40 +10,25 @@
     <style>
         .campo-password {
             position: relative;
+            display: flex;
+            align-items: center;
         }
         .campo-password input {
-            display: block;
+            flex: 1;
             width: 100%;
             padding-right: 40px;
             box-sizing: border-box;
         }
         .toggle-password {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            right: 12px;
-            margin: auto;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #6b7280;
-        }
-        .toggle-password {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            right: 12px;
-            margin: auto;
             width: 20px;
             height: 20px;
+            margin-left: -32px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             color: #6b7280;
+            z-index: 2;
         }
         .toggle-password:hover {
             color: #374151;
@@ -58,7 +43,7 @@
 <body>
 <div class="login-caja" style="width:420px;">
     <div class="brand-logo-wrap brand-logo-login-wrap">
-        <img src="{% static 'img/iot-technologies-logo.svg' %}" alt="IOT Technologies" class="brand-logo-login">
+        <img src="{% static 'img/faultmate_logo.png' %}" alt="FaultMate" class="brand-logo-login">
     </div>
     <p>Registro de usuario en LeanDigital IA</p>
     {% if exito %}
