@@ -7,7 +7,6 @@
     <title>Login - FaultMate</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
-    <!-- AGREGADO: estilos para el ícono de mostrar/ocultar contraseña -->
     <style>
         .campo-password {
             position: relative;
@@ -62,7 +61,6 @@ Sistema Inteligente de Diagnóstico Industrial
         <input id="usuario" type="text" name="usuario" placeholder="Escribe tu usuario" required>
 
         <label for="password">Contraseña</label>
-        <!-- AGREGADO: div envolvente + ícono de ojo -->
         <div class="campo-password">
             <input id="password" type="password" name="password" placeholder="Escribe tu contraseña" required>
             <span class="toggle-password" data-target="password">
@@ -85,7 +83,6 @@ Sistema Inteligente de Diagnóstico Industrial
     </p>
 </div>
 
-<!-- AGREGADO: script para alternar entre mostrar/ocultar contraseña -->
 <script>
     document.querySelectorAll('.toggle-password').forEach(function (toggle) {
         toggle.addEventListener('click', function () {
