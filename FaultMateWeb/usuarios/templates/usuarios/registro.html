@@ -7,7 +7,6 @@
     <title>Registro - FaultMate</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
-    <!-- AGREGADO: estilos para el ícono de mostrar/ocultar contraseña -->
     <style>
         .campo-password {
             position: relative;
@@ -60,7 +59,6 @@
         {% if form.correo.errors %}<p class="mensaje-error">{{ form.correo.errors|join:', ' }}</p>{% endif %}
 
         <label for="id_password">Contraseña</label>
-        <!-- AGREGADO: div envolvente + ícono de ojo -->
         <div class="campo-password">
             {{ form.password }}
             <span class="toggle-password" data-target="id_password">
@@ -77,7 +75,6 @@
         {% if form.password.errors %}<p class="mensaje-error">{{ form.password.errors|join:', ' }}</p>{% endif %}
 
         <label for="id_password_confirm">Confirmar contraseña</label>
-        <!-- AGREGADO: div envolvente + ícono de ojo -->
         <div class="campo-password">
             {{ form.password_confirm }}
             <span class="toggle-password" data-target="id_password_confirm">
@@ -100,7 +97,6 @@
     </p>
 </div>
 
-<!-- AGREGADO: script para alternar entre mostrar/ocultar contraseña -->
 <script>
     document.querySelectorAll('.toggle-password').forEach(function (toggle) {
         toggle.addEventListener('click', function () {
