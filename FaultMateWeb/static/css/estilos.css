@@ -88,17 +88,18 @@ a {
     display: flex;
     justify-content: center;
     align-items: center;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 14px 14px 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .22);
+    margin-bottom: 10px;
 }
 
 .brand-logo-sidebar {
-    width: 148px;
+    width: 170px;
     max-width: 100%;
     height: auto;
-    border-radius: 10px;
-    background: #ffffff;
-    padding: 8px 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, .22);
-    margin-bottom: 8px;
+    display: block;
 }
 
 .sidebar .subtitulo {
@@ -330,14 +331,22 @@ tr:hover td {
     margin-bottom: 10px;
 }
 
-.brand-logo-login {
+.brand-logo-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 14px 14px 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .22);
+    margin-bottom: 10px;
+}
+
+.brand-logo-sidebar {
     width: 170px;
     max-width: 100%;
     height: auto;
-    background: #ffffff;
-    border-radius: 10px;
-    padding: 10px 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+    display: block;
 }
 
 /* 10) Pagina de inicio (publica, sin sesion) -------------------------------- */
@@ -358,12 +367,8 @@ tr:hover td {
 }
 
 .brand-logo-home {
-    width: min(520px, 92vw);
+    width: min(420px, 80vw);
     height: auto;
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 10px 14px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, .22);
 }
 
 .inicio-menu {
@@ -426,12 +431,9 @@ tr:hover td {
 }
 
 .landing-topbar-logo {
-    width: 130px;
+    width: 120px;
     max-width: 45vw;
-    background: #ffffff;
-    border-radius: 10px;
-    padding: 6px 8px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    height: auto;
 }
 
 .landing-login-btn {
