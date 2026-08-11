@@ -1,77 +1,45 @@
 {% load static %}
-
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>{% block title %}FaultMate{% endblock %}</title>
-
 <!-- Tipografía oficial de la marca (Open Sans / Roboto) -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@400;500&display=swap">
-
 <!-- Íconos usados en el menú lateral -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
 <!-- Archivo principal de estilos del proyecto -->
 <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
-
 </head>
-
 <body>
-
 <div class="layout">
-
 <div class="sidebar">
-
 <div class="brand-logo-wrap">
-<img src="{% static 'img/IOT.png' %}" alt="IOT Technologies" class="brand-logo-sidebar">
+<img src="{% static 'img/faultmate_logo.png' %}" alt="FaultMate" class="brand-logo-sidebar">
 </div>
-
 <a href="/"><i class="bi bi-house-door"></i> Inicio</a>
-
 <a href="/dashboard/"><i class="bi bi-speedometer2"></i> Dashboard</a>
-
 <a href="/diagnosticar/"><i class="bi bi-search"></i> Diagnosticar</a>
-
 <a href="/agentes/"><i class="bi bi-robot"></i> Agentes IA</a>
-
 <a href="/usuarios/"><i class="bi bi-people-fill"></i> Usuarios</a>
-
 <!-- Cerrar sesión: usamos un formulario POST (no un simple link) para
      que nadie pueda cerrarle la sesión a otra persona con un enlace. -->
 <form method="POST" action="/logout/">
 {% csrf_token %}
 <button type="submit" class="btn-salir"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</button>
 </form>
-
 </div>
-
 <div class="main">
-
 <div class="header">
-
 <h1>{% block titulo %}{% endblock %}</h1>
-
 <p>{% block descripcion %}{% endblock %}</p>
-
 </div>
-
 <div class="content">
-
 {% block content %}
 {% endblock %}
-
 </div>
-
 </div>
-
 </div>
-
 </body>
-
 </html>
