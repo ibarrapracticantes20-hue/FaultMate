@@ -8,13 +8,11 @@ class Usuario(models.Model):
     ROLE_VISITANTE = 'VISITANTE'
     ROLE_ADMIN = 'ADMIN'
     ROLE_DESARROLLADOR = 'DESARROLLADOR'
-
     ROLE_CHOICES = [
         (ROLE_VISITANTE, 'Visitante'),
         (ROLE_ADMIN, 'Administrador'),
         (ROLE_DESARROLLADOR, 'Desarrollador'),
     ]
-
     nombre = models.CharField(max_length=100)
     correo = models.EmailField(unique=True)  # No puede repetirse entre usuarios.
     rol = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_VISITANTE)
