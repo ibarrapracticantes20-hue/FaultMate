@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 
-from faultmate.permissions import ROLE_DESARROLLADOR, role_required
+from faultmate.permissions import ROLE_ADMIN, ROLE_DESARROLLADOR, role_required
 from .forms import UsuarioForm, RegistroPublicoForm
 from .models import Usuario
 
@@ -39,7 +39,7 @@ def registro_publico(request):
 
 
 @login_required
-@role_required(ROLE_DESARROLLADOR)
+@role_required(ROLE_ADMIN, ROLE_DESARROLLADOR)
 def lista_usuarios(request):
     """Muestra todos los usuarios registrados en el sistema."""
     usuarios = Usuario.objects.all().order_by('id')
@@ -54,7 +54,7 @@ def lista_usuarios(request):
 
 
 @login_required
-@role_required(ROLE_DESARROLLADOR)
+@role_required(ROLE_ADMIN, ROLE_DESARROLLADOR)
 def nuevo_usuario(request):
     """
     Crea un nuevo usuario.
@@ -100,7 +100,7 @@ def nuevo_usuario(request):
 
 
 @login_required
-@role_required(ROLE_DESARROLLADOR)
+@role_required(ROLE_ADMIN, ROLE_DESARROLLADOR)
 def editar_usuario(request, id):
     """Edita usuario de FaultMate y sincroniza datos de auth.User."""
     usuario = get_object_or_404(Usuario, id=id)
@@ -134,7 +134,7 @@ def editar_usuario(request, id):
 
 
 @login_required
-@role_required(ROLE_DESARROLLADOR)
+@role_required(ROLE_ADMIN, ROLE_DESARROLLADOR)
 def eliminar_usuario(request, id):
     """Elimina usuario de FaultMate y su cuenta de login asociada."""
     usuario = get_object_or_404(Usuario, id=id)
@@ -147,4 +147,3 @@ def eliminar_usuario(request, id):
             return redirect('usuarios')
 
     return redirect('usuarios')
-
