@@ -8,21 +8,12 @@ class Agentes(models.Model):
     """Un agente IA que ayuda a diagnosticar fallas (ej. "Agente Motores")."""
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
-
-    # Instrucciones que se le daran a la IA (opcional).
     prompt = models.TextField(blank=True, null=True)
-
-    # Que tan creativa es la IA al responder (0 = muy literal, 1 = muy creativa).
     temperatura = models.FloatField(default=0.7)
-
-    # Limite de palabras/tokens que puede usar la IA en su respuesta.
     tokens = models.IntegerField(default=1000)
-
-    # Indica si fue creado como agente base del sistema.
     es_base = models.BooleanField(default=False)
 
     def __str__(self):
-        # Esto es lo que se muestra en el panel de administracion de Django.
         return self.nombre
 
 
@@ -37,9 +28,29 @@ class Falla(models.Model):
 
 class PreguntaDiagnostico(models.Model):
     """Pregunta que el sistema hace al tecnico para diagnosticar una Falla."""
+    RESPUESTA_PADRE_CHOICES = (
+        ('si', 'Sí'),
+        ('no', 'No'),
+    )
+
     falla = models.ForeignKey(Falla, on_delete=models.CASCADE)
     pregunta = models.CharField(max_length=250)
     orden = models.IntegerField(default=1)  # En que orden se muestra la pregunta.
+    pregunta_padre = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='preguntas_hijas',
+        help_text='Pregunta anterior de la que depende esta (vacío si es la primera pregunta de la falla).',
+    )
+    respuesta_padre = models.CharField(
+        max_length=2,
+        choices=RESPUESTA_PADRE_CHOICES,
+        null=True,
+        blank=True,
+        help_text='Con qué respuesta de la pregunta padre se activa esta pregunta.',
+    )
 
     def __str__(self):
         return self.pregunta
@@ -51,7 +62,6 @@ class CausaRaiz(models.Model):
         ('si', 'Sí'),
         ('no', 'No'),
     )
-
     falla = models.ForeignKey(Falla, on_delete=models.CASCADE)
     pregunta_disparadora = models.ForeignKey(
         PreguntaDiagnostico,
@@ -63,6 +73,11 @@ class CausaRaiz(models.Model):
     respuesta_disparadora = models.CharField(max_length=2, choices=RESPUESTA_CHOICES, null=True, blank=True)
     causa = models.CharField(max_length=200)
     accion_correctiva = models.TextField()
+    recomendacion_seguridad = models.TextField(
+        blank=True,
+        default='',
+        help_text='Recomendación de seguridad (LOTO) para esta acción correctiva, si aplica.',
+    )
 
     def __str__(self):
         return self.causa
@@ -74,7 +89,6 @@ class AgenteChatMensaje(models.Model):
         ('user', 'Usuario'),
         ('assistant', 'Asistente'),
     )
-
     agente = models.ForeignKey(Agentes, on_delete=models.CASCADE)
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     rol = models.CharField(max_length=20, choices=ROLE_CHOICES)
@@ -98,7 +112,6 @@ class AgenteEvento(models.Model):
         ('deleted', 'Eliminado'),
         ('chat_used', 'Usado en chat'),
     )
-
     agente = models.ForeignKey(Agentes, on_delete=models.SET_NULL, null=True, blank=True)
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     accion = models.CharField(max_length=30, choices=ACTION_CHOICES)
