@@ -84,22 +84,42 @@ a {
     font-size: 22px;
 }
 
+/* Logo de marca: una sola clase base + modificador de tamano por
+   contexto, para que el logo se vea igual (transparente, centrado,
+   sin deformarse) en Sidebar, Login, Registro y Landing. */
 .brand-logo-wrap {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 14px 14px 10px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, .22);
+    padding: 6px 0;
     margin-bottom: 10px;
+    /* Sin fondo ni sombra a proposito: el logo debe verse transparente
+       sobre cualquier fondo (oscuro en el sidebar, blanco en login). */
 }
 
-.brand-logo-sidebar {
-    width: 170px;
-    max-width: 100%;
+.brand-logo {
     height: auto;
+    max-width: 100%;
     display: block;
+    object-fit: contain;
+}
+
+.brand-logo--sidebar {
+    width: 170px;
+}
+
+.brand-logo--login {
+    width: 200px;
+}
+
+.brand-logo--landing {
+    width: 120px;
+    max-width: 45vw;
+}
+
+.brand-logo--footer {
+    height: 28px;
+    width: auto;
 }
 
 .sidebar .subtitulo {
@@ -331,24 +351,6 @@ tr:hover td {
     margin-bottom: 10px;
 }
 
-.brand-logo-wrap {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 14px 14px 10px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, .22);
-    margin-bottom: 10px;
-}
-
-.brand-logo-sidebar {
-    width: 170px;
-    max-width: 100%;
-    height: auto;
-    display: block;
-}
-
 /* 10) Pagina de inicio (publica, sin sesion) -------------------------------- */
 .inicio-header {
     background: var(--color-primario);
@@ -428,12 +430,6 @@ tr:hover td {
     font-weight: 700;
     color: #0f2f5e;
     letter-spacing: 0.02em;
-}
-
-.landing-topbar-logo {
-    width: 120px;
-    max-width: 45vw;
-    height: auto;
 }
 
 .landing-login-btn {
@@ -673,7 +669,7 @@ tr:hover td {
     font-size: 13px;
 }
 
-/* 10.1) Footer institucional con redes sociales ----------------------------- */
+/* 10.2) Footer institucional con redes sociales ----------------------------- */
 .landing-info-footer {
     margin-top: 60px;
     background: var(--color-oscuro);
@@ -702,11 +698,6 @@ tr:hover td {
     align-items: center;
     gap: 10px;
     margin-bottom: 14px;
-}
-
-.landing-info-footer-logo {
-    height: 28px;
-    width: auto;
 }
 
 .landing-info-footer-brand span {
@@ -1050,7 +1041,7 @@ tr:hover td {
         display: none;
     }
 
-    .landing-topbar-logo {
+    .brand-logo--landing {
         width: 118px;
     }
 
