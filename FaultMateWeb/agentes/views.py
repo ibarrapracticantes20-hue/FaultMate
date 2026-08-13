@@ -123,26 +123,36 @@ def _buscar_pregunta_conocida(mensaje):
     return None
 
 
-def _render_resultado_arbol(falla, respuestas):
-    causas = []
-    for respuesta in respuestas:
-        pregunta_id = respuesta.get('pregunta_id')
-        valor = respuesta.get('respuesta')
-        if not pregunta_id or valor not in ['si', 'no']:
-            continue
-        causas.extend(
-            list(
-                CausaRaiz.objects.filter(
-                    falla=falla,
-                    pregunta_disparadora_id=pregunta_id,
-                    respuesta_disparadora=valor,
-                )
-            )
+def _pregunta_raiz(falla):
+    """Primera pregunta del árbol de una falla (la que no depende de ninguna otra)."""
+    return PreguntaDiagnostico.objects.filter(
+        falla=falla, pregunta_padre__isnull=True
+    ).order_by('orden', 'id').first()
+
+
+def _pregunta_siguiente(pregunta_actual, respuesta):
+    """Siguiente pregunta de la rama, segun la respuesta dada a la pregunta actual."""
+    return PreguntaDiagnostico.objects.filter(
+        pregunta_padre=pregunta_actual,
+        respuesta_padre=respuesta,
+    ).order_by('orden', 'id').first()
+
+
+def _causas_para_hoja(falla, pregunta_hoja, respuesta_hoja):
+    """Causas raiz asociadas al final de una rama (pregunta + respuesta que ya no tiene siguiente)."""
+    causas = list(
+        CausaRaiz.objects.filter(
+            falla=falla,
+            pregunta_disparadora=pregunta_hoja,
+            respuesta_disparadora=respuesta_hoja,
         )
-
+    )
     if not causas:
-        causas = list(CausaRaiz.objects.filter(falla=falla))
+        causas = list(CausaRaiz.objects.filter(falla=falla, pregunta_disparadora__isnull=True))
+    return causas
 
+
+def _render_resultado_arbol(falla, causas):
     if not causas:
         return (
             f'No hay causas raíz cargadas para la falla "{falla.nombre}". '
@@ -152,11 +162,13 @@ def _render_resultado_arbol(falla, respuestas):
     lineas = [
         f'Falla identificada: {falla.nombre}',
         '',
-        'Posibles causas raíz y acciones recomendadas:',
+        'Posibles causas raíz y acción correctiva:',
     ]
     for i, causa in enumerate(causas, start=1):
         lineas.append(f'{i}. Causa: {causa.causa}')
         lineas.append(f'   Acción correctiva: {causa.accion_correctiva}')
+        if causa.recomendacion_seguridad:
+            lineas.append(f'   Seguridad (LOTO): {causa.recomendacion_seguridad}')
 
     return '\n'.join(lineas)
 
@@ -167,51 +179,34 @@ def _resolver_arbol_decision(request, agente, mensaje_usuario):
 
     if estado:
         falla = Falla.objects.filter(id=estado.get('falla_id')).first()
-        if not falla:
+        pregunta_actual = PreguntaDiagnostico.objects.filter(id=estado.get('pregunta_id')).first()
+        if not falla or not pregunta_actual:
             request.session.pop(session_key, None)
             request.session.modified = True
             return None
 
-        preguntas = list(PreguntaDiagnostico.objects.filter(falla=falla).order_by('orden', 'id'))
-        if not preguntas:
-            request.session.pop(session_key, None)
-            request.session.modified = True
-            return _render_resultado_arbol(falla, estado.get('respuestas', []))
-
-        indice = int(estado.get('indice', 0))
-        if indice >= len(preguntas):
-            request.session.pop(session_key, None)
-            request.session.modified = True
-            return _render_resultado_arbol(falla, estado.get('respuestas', []))
-
         respuesta = _normalizar_respuesta_binaria(mensaje_usuario)
-        pregunta_actual = preguntas[indice]
         if not respuesta:
-            paso = indice + 1
             return (
-                f'Para seguir el diagnóstico guiado, respóndeme solo con "sí" o "no".\n\n'
-                f'Paso {paso} de {len(preguntas)}: {pregunta_actual.pregunta}'
+                'Para seguir el diagnóstico guiado, respóndeme solo con "sí" o "no".\n\n'
+                f'{pregunta_actual.pregunta}'
             )
 
-        respuestas = list(estado.get('respuestas', []))
-        respuestas.append({'pregunta_id': pregunta_actual.id, 'respuesta': respuesta})
-        estado['respuestas'] = respuestas
-        estado['indice'] = indice + 1
-        request.session[session_key] = estado
-        request.session.modified = True
-
-        if estado['indice'] < len(preguntas):
-            siguiente = preguntas[estado['indice']]
-            paso = estado['indice'] + 1
+        siguiente = _pregunta_siguiente(pregunta_actual, respuesta)
+        if siguiente:
+            estado['pregunta_id'] = siguiente.id
+            estado['paso'] = int(estado.get('paso', 1)) + 1
+            request.session[session_key] = estado
+            request.session.modified = True
             return (
-                f'Perfecto, continuemos paso a paso.\n\n'
-                f'Paso {paso} de {len(preguntas)}: {siguiente.pregunta}\n\n'
+                f'Paso {estado["paso"]} de máximo 3: {siguiente.pregunta}\n\n'
                 'Responde con "sí" o "no".'
             )
 
+        causas = _causas_para_hoja(falla, pregunta_actual, respuesta)
         request.session.pop(session_key, None)
         request.session.modified = True
-        return _render_resultado_arbol(falla, respuestas)
+        return _render_resultado_arbol(falla, causas)
 
     falla = _buscar_falla_conocida(mensaje_usuario)
     if not falla:
@@ -220,44 +215,33 @@ def _resolver_arbol_decision(request, agente, mensaje_usuario):
             return None
 
         falla = pregunta.falla
-        preguntas = list(PreguntaDiagnostico.objects.filter(falla=falla).order_by('orden', 'id'))
-        if not preguntas:
-            return _render_resultado_arbol(falla, [])
-
-        indice_pregunta = 0
-        for index, item in enumerate(preguntas):
-            if item.id == pregunta.id:
-                indice_pregunta = index
-                break
-
         request.session[session_key] = {
             'falla_id': falla.id,
-            'indice': indice_pregunta,
-            'respuestas': [],
+            'pregunta_id': pregunta.id,
+            'paso': 1,
         }
         request.session.modified = True
 
         return (
             f'Reconocí una pregunta del checklist manual para "{falla.nombre}".\n\n'
-            f'Paso {indice_pregunta + 1} de {len(preguntas)}: {pregunta.pregunta}\n\n'
+            f'Paso 1 de máximo 3: {pregunta.pregunta}\n\n'
             'Respóndeme con "sí" o "no" y te iré guiando con la siguiente revisión.'
         )
 
-    preguntas = list(PreguntaDiagnostico.objects.filter(falla=falla).order_by('orden', 'id'))
-    if not preguntas:
-        return _render_resultado_arbol(falla, [])
+    raiz = _pregunta_raiz(falla)
+    if not raiz:
+        return _render_resultado_arbol(falla, list(CausaRaiz.objects.filter(falla=falla)))
 
     request.session[session_key] = {
         'falla_id': falla.id,
-        'indice': 0,
-        'respuestas': [],
+        'pregunta_id': raiz.id,
+        'paso': 1,
     }
     request.session.modified = True
 
-    primera = preguntas[0]
     return (
         f'Activé el diagnóstico guiado para la falla "{falla.nombre}".\n\n'
-        f'Paso 1 de {len(preguntas)}: {primera.pregunta}\n\n'
+        f'Paso 1 de máximo 3: {raiz.pregunta}\n\n'
         'Primero revisa ese punto y luego respóndeme con "sí" o "no".'
     )
 
@@ -297,7 +281,6 @@ def nuevo_agente(request):
                 agente_es_base=agente.es_base,
             )
 
-            # Una vez guardado, regresamos a la lista de agentes.
             return redirect('lista_agentes')
     else:
         form = AgenteForm(initial={'temperatura': 0.7, 'tokens': 1000})
@@ -344,9 +327,6 @@ def eliminar_agente(request, id):
         )
         agente.delete()
 
-    # Antes esto redirigia a "/agente/" (sin la "s"), una direccion que
-    # no existe y provocaba un error 404. Usamos el nombre de la ruta
-    # ("lista_agentes") para evitar ese tipo de errores de escritura.
     return redirect('lista_agentes')
 
 
@@ -460,7 +440,6 @@ def chat_agente(request, id):
                 agente_es_base=agente.es_base,
             )
 
-        # PRG: evita reenvio al recargar o volver atras.
         return redirect('chat_agente', id=agente.id)
 
     mensajes = AgenteChatMensaje.objects.filter(agente=agente, usuario=request.user)
