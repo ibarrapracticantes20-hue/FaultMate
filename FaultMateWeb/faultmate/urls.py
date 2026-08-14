@@ -2,8 +2,6 @@
 # Aqui se decide a que app le toca atender cada direccion web.
 from django.contrib import admin
 from django.urls import path, include
-
-
 urlpatterns = [
     path('admin/', admin.site.urls),            # Panel de administracion de Django.
     path('', include('dashboard.urls')),         # Paginas generales (inicio, dashboard, etc.)
