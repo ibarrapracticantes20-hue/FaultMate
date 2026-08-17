@@ -474,7 +474,7 @@ def diagnosticar(request):
 @login_required
 def diagnostico_detalle(request, diagnostico_id):
     """Muestra el diagnostico completo en una pagina separada."""
-    diagnostico = get_object_or_404(Diagnostico, id=diagnostico_id)
+    diagnostico = get_object_or_404(Diagnostico, id=diagnostico_id, usuario=request.user)
     return render(request, 'dashboard/diagnostico_detalle.html', {'diagnostico': diagnostico})
 
 
