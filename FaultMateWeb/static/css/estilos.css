@@ -91,10 +91,10 @@ a {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 6px 0;
+    padding: 12px 10px;
     margin-bottom: 10px;
-    /* Sin fondo ni sombra a proposito: el logo debe verse transparente
-       sobre cualquier fondo (oscuro en el sidebar, blanco en login). */
+    background: var(--color-blanco);
+    border-radius: 12px;
 }
 
 .brand-logo {
