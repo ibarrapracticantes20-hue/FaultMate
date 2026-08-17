@@ -314,9 +314,17 @@ tr:hover td {
 }
 
 /* 9) Pantalla de login (sin barra lateral) ---------------------------------- */
+.pagina-login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0;
+}
+
 .login-caja {
     width: 350px;
-    margin: 100px auto;
+    margin: 0 auto;
     background: var(--color-blanco);
     padding: 30px;
     border-radius: 15px;
