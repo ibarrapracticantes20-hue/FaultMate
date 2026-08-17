@@ -348,6 +348,9 @@ tr:hover td {
 }
 
 .brand-logo-login-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin-bottom: 10px;
 }
 
