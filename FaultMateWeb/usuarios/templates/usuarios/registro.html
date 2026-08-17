@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - FaultMate</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+</head>
+<body>
+<div class="login-caja">
+    <p style="text-align:left; margin-bottom:12px;">
+        <a href="/" class="login-back-link">&larr; Volver al inicio</a>
+    </p>
+    <div class="brand-logo-login-wrap">
+        <img src="{% static 'img/faultmate_logo.png' %}" alt="FaultMate" class="brand-logo brand-logo--login">
+    </div>
+    <h2 class="faultmate-title">FaultMate</h2>
+    <p class="faultmate-subtitle">
+        Crea tu cuenta para acceder al sistema
+    </p>
+
+    {% if exito %}
+    <p class="mensaje-error" style="background:#dcfce7; color:#166534;">
+        Cuenta creada correctamente. Ya puedes <a href="{% url 'login' %}">iniciar sesión</a>.
+    </p>
+    {% else %}
+
+    {% if form.non_field_errors %}
+    <p class="mensaje-error">{{ form.non_field_errors|join:', ' }}</p>
+    {% endif %}
+
+    <form class="formulario" method="post">
+        {% csrf_token %}
+
+        <label for="id_nombre">Nombre</label>
+        {{ form.nombre }}
+        {% if form.nombre.errors %}<p class="mensaje-error">{{ form.nombre.errors|join:', ' }}</p>{% endif %}
+
+        <label for="id_correo">Correo (se usará para iniciar sesión)</label>
+        {{ form.correo }}
+        {% if form.correo.errors %}<p class="mensaje-error">{{ form.correo.errors|join:', ' }}</p>{% endif %}
+
+        <label for="id_password">Contraseña</label>
+        <div class="campo-password">
+            {{ form.password }}
+            <button type="button" class="btn-toggle-password" onclick="togglePassword('id_password', this)" aria-label="Mostrar u ocultar contraseña">👁</button>
+        </div>
+        {% if form.password.errors %}<p class="mensaje-error">{{ form.password.errors|join:', ' }}</p>{% endif %}
+
+        <label for="id_password_confirm">Confirmar contraseña</label>
+        <div class="campo-password">
+            {{ form.password_confirm }}
+            <button type="button" class="btn-toggle-password" onclick="togglePassword('id_password_confirm', this)" aria-label="Mostrar u ocultar contraseña">👁</button>
+        </div>
+        {% if form.password_confirm.errors %}<p class="mensaje-error">{{ form.password_confirm.errors|join:', ' }}</p>{% endif %}
+
+        <button type="submit" class="btn" style="width:100%;">Crear cuenta</button>
+    </form>
+
+    <p style="margin-top:12px; text-align:center;">
+        ¿Ya tienes cuenta?
+        <a href="{% url 'login' %}">Inicia sesión aquí</a>
+    </p>
+    {% endif %}
+</div>
+<script>
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+    } else {
+        input.type = 'password';
+        btn.textContent = '👁';
+    }
+}
+</script>
+</body>
+</html>
