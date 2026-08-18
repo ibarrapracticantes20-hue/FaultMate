@@ -37,7 +37,7 @@
         {{ form.nombre }}
         {% if form.nombre.errors %}<p class="mensaje-error">{{ form.nombre.errors|join:', ' }}</p>{% endif %}
 
-        <label for="id_correo">Correo (se usará para iniciar sesión)</label>
+        <label for="id_correo">Correo electrónico</label>
         {{ form.correo }}
         {% if form.correo.errors %}<p class="mensaje-error">{{ form.correo.errors|join:', ' }}</p>{% endif %}
 
