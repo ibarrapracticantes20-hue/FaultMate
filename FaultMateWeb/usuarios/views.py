@@ -22,7 +22,7 @@ def registro_publico(request):
                 auth_user = User.objects.create_user(
                     username=correo,
                     email=correo,
-                    password=form.cleaned_data['password'],
+                    password=form.cleaned_data['password'].strip(),
                 )
                 Usuario.objects.create(
                     nombre=form.cleaned_data['nombre'],
