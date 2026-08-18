@@ -199,13 +199,17 @@ def login_view(request):
 
     error = None
 
-    if request.method == 'POST':
-        usuario = request.POST.get('usuario')
+        if request.method == 'POST':
+        usuario = (request.POST.get('usuario') or '').strip().lower()
         password = request.POST.get('password')
 
         # authenticate() regresa None si el usuario no existe, si la
         # contrasena esta mal, o si viene vacia. Asi evitamos que
         # alguien entre sin una contrasena valida.
+        # Se normaliza "usuario" a minusculas porque el correo se
+        # guarda siempre en minusculas al registrarse (ver
+        # usuarios/forms.py -> clean_correo), asi login y registro
+        # quedan consistentes sin importar como lo escriba la persona.
         user = authenticate(request, username=usuario, password=password)
 
         if user is not None:
