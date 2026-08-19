@@ -10,14 +10,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='usuario',
-            name='activo',
-        ),
         migrations.AlterField(
             model_name='usuario',
             name='correo',
-            field=models.EmailField(max_length=254, unique=True),
+            field=models.EmailField(max_length=191, unique=True),
         ),
         migrations.AlterField(
             model_name='usuario',

@@ -14,7 +14,7 @@ class Usuario(models.Model):
         (ROLE_DESARROLLADOR, 'Desarrollador'),
     ]
     nombre = models.CharField(max_length=100)
-    correo = models.EmailField(unique=True)  # No puede repetirse entre usuarios.
+    correo = models.EmailField(max_length=191, unique=True)  # No puede repetirse entre usuarios.
     rol = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_VISITANTE)
     auth_user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)
 

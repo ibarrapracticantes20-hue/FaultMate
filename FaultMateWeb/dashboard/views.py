@@ -188,29 +188,21 @@ def home(request):
 def login_view(request):
     """
     Muestra el formulario de inicio de sesion y valida usuario/contrasena.
-
-    Antes este formulario no validaba nada: cualquier clic en "Ingresar"
-    (incluso sin escribir contrasena) te dejaba entrar. Ahora usamos el
-    sistema de autenticacion de Django (authenticate + login), que solo
-    deja pasar si el usuario y la contrasena son correctos.
     """
     if request.user.is_authenticated:
         return redirect('dashboard')
 
     error = None
 
-        if request.method == 'POST':
+    if request.method == 'POST':
         usuario = (request.POST.get('usuario') or '').strip().lower()
-        password = request.POST.get('password')
+        password = request.POST.get('password') or ''
 
-        # authenticate() regresa None si el usuario no existe, si la
-        # contrasena esta mal, o si viene vacia. Asi evitamos que
-        # alguien entre sin una contrasena valida.
-        # Se normaliza "usuario" a minusculas porque el correo se
-        # guarda siempre en minusculas al registrarse (ver
-        # usuarios/forms.py -> clean_correo), asi login y registro
-        # quedan consistentes sin importar como lo escriba la persona.
-        user = authenticate(request, username=usuario, password=password)
+        user = authenticate(
+            request,
+            username=usuario,
+            password=password
+        )
 
         if user is not None:
             login(request, user)
@@ -218,7 +210,11 @@ def login_view(request):
 
         error = 'Usuario o contrasena incorrectos.'
 
-    return render(request, 'dashboard/registration/login.html', {'error': error})
+    return render(
+        request,
+        'dashboard/registration/login.html',
+        {'error': error}
+    )
 
 
 def logout_view(request):
