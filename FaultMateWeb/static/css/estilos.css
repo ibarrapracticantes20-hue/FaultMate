@@ -91,10 +91,9 @@ a {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 12px 10px;
-    margin-bottom: 10px;
-    background: var(--color-blanco);
-    border-radius: 12px;
+    padding: 6px 0;
+    margin-bottom: 12px;
+    background: transparent;
 }
 
 .brand-logo {
