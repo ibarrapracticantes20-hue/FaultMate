@@ -15,6 +15,60 @@ def _rol_gemini(rol):
     return "model" if rol == "assistant" else "user"
 
 
+def consultar_gemini(falla):
+    """
+    Le pide a la IA de Gemini un diagnostico para la falla recibida.
+    Devuelve el texto de la respuesta (o un mensaje de error si algo falla).
+    """
+    if not GEMINI_API_KEY:
+        return "Error: GEMINI_API_KEY no está configurada en el .env"
+
+    prompt = f"""
+    Eres Faultmate, un experto en mantenimiento industrial.
+
+    Analizar esta falla:
+
+    {falla}
+
+    Responde:
+    Diagnóstico probable:
+    Posible causa:
+    Acción recomendada:
+    """
+
+    payload = {
+        "contents": [
+            {
+                "role": "user",
+                "parts": [{"text": prompt}]
+            }
+        ]
+    }
+
+    try:
+        response = requests.post(
+            f"{GEMINI_URL}?key={GEMINI_API_KEY}",
+            headers={"Content-Type": "application/json"},
+            json=payload,
+            timeout=30,
+        )
+    except requests.RequestException as exc:
+        return f"Error de conexión con Gemini: {exc}"
+
+    try:
+        result_json = response.json()
+    except ValueError:
+        return "Error: respuesta inválida de Gemini"
+
+    if "candidates" in result_json and len(result_json["candidates"]) > 0:
+        return result_json["candidates"][0]["content"]["parts"][0]["text"]
+
+    if "error" in result_json:
+        return f"Error de Gemini: {result_json['error'].get('message', 'sin detalle')}"
+
+    return "Error: no se pudo obtener respuesta de Gemini"
+
+
 def consultar_gemini_agente(agente, mensaje_usuario, historial=None):
     """
     Envía el mensaje del usuario a Gemini, usando el prompt y la configuración
