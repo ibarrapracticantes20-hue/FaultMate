@@ -1,85 +1,86 @@
-# Este archivo se encarga de "hablar" con la IA de Google (Gemini).
-# La idea es tener en un solo lugar todo lo relacionado con la IA, para
-# que dashboard/views.py solo tenga que llamar a consultar_gemini(falla).
-from google import genai
+import os
+import requests
+from dotenv import load_dotenv
 
-# Configuracion solicitada: API key hardcodeada.
-GEMINI_API_KEY = "AQ.Ab8RN6KXvIoekxkTO6zt9olu0rmyMIgiyCbOzhaIkhl5wvfwBg"
+load_dotenv()
 
-# Si no hay clave configurada, "cliente" queda en None y avisamos con un
-# mensaje claro en vez de que el programa se caiga con un error raro.
-cliente = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent"
 
 
-def consultar_gemini(falla):
-    """
-    Le pide a la IA de Gemini un diagnostico para la falla recibida.
-    Devuelve el texto de la respuesta (o un mensaje de error si algo falla).
-    """
-    if cliente is None:
-        return (
-            "Error: no se encontró GEMINI_API_KEY. "
-            "Configura la variable de entorno en un archivo .env."
-        )
-
-    # El "prompt" son las instrucciones que le damos a la IA.
-    prompt = f"""
-    Eres Faultmate, un experto en mantenimiento industrial.
-
-    Analizar esta falla:
-
-    {falla}
-
-    Responde:
-    Diagnóstico probable:
-    Posible causa:
-    Acción recomendada:
-    """
-
-    try:
-        respuesta = cliente.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
-        return respuesta.text
-    except Exception as e:
-        return f"Error al consultar Gemini: {e}"
+def _rol_gemini(rol):
+    """Convierte el rol guardado en tu base de datos ('user'/'assistant')
+    al formato que espera la API de Gemini ('user'/'model')."""
+    return "model" if rol == "assistant" else "user"
 
 
 def consultar_gemini_agente(agente, mensaje_usuario, historial=None):
-    """Consulta Gemini usando la configuracion/prompt de un agente y su historial."""
-    if cliente is None:
-        return (
-            "Error: no se encontró GEMINI_API_KEY. "
-            "Configura la variable de entorno o reemplaza PEGA_AQUI_TU_API_KEY."
-        )
+    """
+    Envía el mensaje del usuario a Gemini, usando el prompt y la configuración
+    del agente (temperatura, tokens) y el historial de la conversación,
+    y devuelve el texto de respuesta como string.
+    """
+    if not GEMINI_API_KEY:
+        return "Error: GEMINI_API_KEY no está configurada en el .env"
 
-    historial = historial or []
-    historial_texto = "\n".join(
-        [f"{item['rol'].upper()}: {item['contenido']}" for item in historial[-12:]]
-    )
+    contents = []
 
-    prompt_base = agente.prompt or (
-        f"Eres {agente.nombre}, un agente especializado en mantenimiento industrial."
-    )
+    # Instrucciones/prompt del agente, como primer turno de la conversación
+    if getattr(agente, "prompt", None):
+        contents.append({
+            "role": "user",
+            "parts": [{"text": agente.prompt}]
+        })
+        contents.append({
+            "role": "model",
+            "parts": [{"text": "Entendido, seguiré esas instrucciones en mis respuestas."}]
+        })
 
-    prompt = f"""
-{prompt_base}
+    # Historial previo del chat (si existe)
+    for mensaje in (historial or []):
+        contents.append({
+            "role": _rol_gemini(mensaje.get("rol")),
+            "parts": [{"text": mensaje.get("contenido", "")}]
+        })
 
-Historial reciente:
-{historial_texto}
+    # Mensaje actual del usuario
+    contents.append({
+        "role": "user",
+        "parts": [{"text": mensaje_usuario}]
+    })
 
-Mensaje actual del usuario:
-{mensaje_usuario}
-
-Responde en formato claro, tecnico y accionable.
-"""
+    payload = {
+        "contents": contents,
+        "generationConfig": {
+            "temperature": getattr(agente, "temperatura", 0.5),
+            "maxOutputTokens": getattr(agente, "tokens", 800),
+        }
+    }
 
     try:
-        respuesta = cliente.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
+        response = requests.post(
+            f"{GEMINI_URL}?key={GEMINI_API_KEY}",
+            headers={"Content-Type": "application/json"},
+            json=payload,
+            timeout=30,
         )
-        return respuesta.text
-    except Exception as e:
-        return f"Error al consultar Gemini: {e}"
+    except requests.RequestException as exc:
+        return f"Error de conexión con Gemini: {exc}"
+
+    # Deja estos prints mientras pruebas; quítalos cuando ya funcione bien
+    print("Status code:", response.status_code)
+    print("Respuesta cruda:", response.text)
+
+    try:
+        result_json = response.json()
+    except ValueError:
+        return "Error: respuesta inválida de Gemini"
+
+    if "candidates" in result_json and len(result_json["candidates"]) > 0:
+        return result_json["candidates"][0]["content"]["parts"][0]["text"]
+
+    if "error" in result_json:
+        return f"Error de Gemini: {result_json['error'].get('message', 'sin detalle')}"
+
+    return "Error: no se pudo obtener respuesta de Gemini"
